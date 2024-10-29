@@ -1,4 +1,4 @@
-import { compareSync } from "bcrypt";
+import { compareSync, hash } from "bcrypt";
 import { UserModel } from "../models/user.model";
 import { AuthResponse } from "../types/auth-response.type";
 import { LoginDto } from "../types/login-dto.type";
@@ -9,6 +9,8 @@ import { LoginResponse } from "../types/login-response.type";
 import { generateJwt } from "./jwt-manager.service";
 
 export const register = async (user: User): Promise<AuthResponse> => {
+    user.password = await hash(user.password, 12);
+    
     const { username, fullName } = await UserModel.create(user);
 
     return { username, fullName };
