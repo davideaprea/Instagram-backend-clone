@@ -1,4 +1,4 @@
-import { compareSync, hash } from "bcrypt";
+import { compareSync, hashSync } from "bcrypt";
 import { UserModel } from "../models/user.model";
 import { AuthResponse } from "../types/auth-response.type";
 import { LoginDto } from "../types/login-dto.type";
@@ -8,10 +8,14 @@ import createHttpError from "http-errors";
 import { LoginResponse } from "../types/login-response.type";
 import { generateJwt } from "./jwt-manager.service";
 
-export const register = async (user: User): Promise<AuthResponse> => {
-    user.password = await hash(user.password, 12);
-    
-    const { username, fullName } = await UserModel.create(user);
+export const register = async (registerDto: User): Promise<AuthResponse> => {
+    const user = new UserModel(registerDto);
+
+    user.validateSync();
+
+    user.password = hashSync(user.password, 12);
+
+    const { username, fullName } = await user.save({validateBeforeSave: false});
 
     return { username, fullName };
 }
