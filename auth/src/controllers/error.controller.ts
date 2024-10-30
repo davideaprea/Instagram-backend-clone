@@ -4,7 +4,7 @@ import { Error } from "mongoose";
 import { MongoServerError } from "mongodb";
 
 export const handleError = (err: unknown, req: Request, res: Response, next: NextFunction) => {
-    console.log(err);
+    //console.log(err);
 
     let status: number = 500, messages: string[] = [];
 
