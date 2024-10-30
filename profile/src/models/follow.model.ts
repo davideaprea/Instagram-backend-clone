@@ -1,7 +1,7 @@
 import { model, Model, Schema, Types } from "mongoose";
-import { Follow } from "../types/follow.type";
-import { FollowRequestStatus } from "../types/follow-request-status.enum";
-import { ProfileSchemaNames } from "../types/profile-schema-names.enum";
+import { FollowRequestStatus } from "../types/enums/follow-request-status.enum";
+import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
+import { Follow } from "../types/custom-types/follow.type";
 
 const followSchema = new Schema<Follow, Model<Follow>>({
     userId: {
@@ -28,6 +28,6 @@ const followSchema = new Schema<Follow, Model<Follow>>({
     }
 });
 
-followSchema.index({ userId: 1, followingUserId: 1 });
+followSchema.index({ userId: 1, followingUserId: 1 }, { unique: true });
 
 export const FollowModel = model<Follow, Model<Follow>>(ProfileSchemaNames.FOLLOW, followSchema);

@@ -1,5 +1,5 @@
 import { ObjectId } from "mongoose";
-import { FollowRequestStatus } from "./follow-request-status.enum";
+import { FollowRequestStatus } from "../enums/follow-request-status.enum";
 
 export type Follow = {
     readonly userId: ObjectId,

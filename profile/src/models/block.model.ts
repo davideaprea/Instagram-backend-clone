@@ -1,6 +1,6 @@
 import { model, Model, Schema, Types } from "mongoose";
-import { Block } from "../types/block.type";
-import { ProfileSchemaNames } from "../types/profile-schema-names.enum";
+import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
+import { Block } from "../types/custom-types/block.type";
 
 const blockSchema = new Schema<Block, Model<Block>>({
     userId: {
@@ -15,6 +15,6 @@ const blockSchema = new Schema<Block, Model<Block>>({
     }
 });
 
-blockSchema.index({ userId: 1, blockedUserId: 1 });
+blockSchema.index({ userId: 1, blockedUserId: 1 }, { unique: true });
 
 export const BlockModel = model<Block, Model<Block>>(ProfileSchemaNames.BLOCK, blockSchema);

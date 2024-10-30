@@ -1,15 +1,16 @@
 import { Model, model, Schema, Types } from "mongoose";
-import { Profile } from "../types/profile.type";
-import { Gender } from "../types/gender.enum";
-import { ProfileVisibility } from "../types/profile-visibility.enum";
-import { ProfileSchemaNames } from "../types/profile-schema-names.enum";
+import { Gender } from "../types/enums/gender.enum";
+import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
+import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
+import { Profile } from "../types/custom-types/profile.type";
+import { InteractionRule } from "../types/enums/interaction-rule.enum";
 
 const profileSchema = new Schema<Profile, Model<Profile>>({
     userId: {
         type: Types.ObjectId,
         required: [true, "User id is required."],
         immutable: true,
-        unique: [true, "The profile for this user is already defined."]
+        unique: true
     },
     followers: {
         type: Number,
@@ -46,7 +47,8 @@ const profileSchema = new Schema<Profile, Model<Profile>>({
     profilePic: String,
     username: {
         type: String,
-        required: [true, "Username is required."]
+        required: [true, "Username is required."],
+        unique: true
     },
     fullName: {
         type: String,
@@ -57,7 +59,26 @@ const profileSchema = new Schema<Profile, Model<Profile>>({
         immutable: true,
         required: true,
         default: Date.now()
+    },
+    interactionRules: {
+        type: {
+            tag: {
+                type: String,
+                required: true,
+                default: InteractionRule.EVERYONE,
+                enum: Object.values(InteractionRule)
+            },
+            mention: {
+                type: String,
+                required: true,
+                default: InteractionRule.EVERYONE,
+                enum: Object.values(InteractionRule)
+            }
+        },
+        required: true
     }
 });
+
+profileSchema.index({ username: "text" });
 
 export const ProfileModel = model<Profile, Model<Profile>>(ProfileSchemaNames.PROFILE, profileSchema);
