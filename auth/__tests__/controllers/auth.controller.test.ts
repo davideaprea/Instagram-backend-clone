@@ -11,14 +11,14 @@ describe("POST /register", () => {
                 password: "Password%2024",
                 fullName: "Full Name"
             });
-    
+
         expect(res.status).toBe(201);
         expect(res.body).toEqual({
             username: "username",
             fullName: "Full Name"
         });
     });
-    
+
     it("should return a 400 status with every validation message", async () => {
         const res = await request(app)
             .post("/register")
@@ -28,7 +28,7 @@ describe("POST /register", () => {
                 password: "pass24",
                 fullName: "Full22 Name"
             });
-    
+
         expect(res.status).toBe(400);
         expect(res.body).toEqual({
             messages: [
@@ -39,7 +39,7 @@ describe("POST /register", () => {
             ]
         });
     });
-    
+
     it("should return 400 with error message for duplicate email", async () => {
         await request(app)
             .post("/register")
@@ -49,7 +49,7 @@ describe("POST /register", () => {
                 password: "Password%2024",
                 fullName: "Full Name"
             });
-    
+
         const res = await request(app)
             .post("/register")
             .send({
@@ -58,7 +58,7 @@ describe("POST /register", () => {
                 password: "Password%2024",
                 fullName: "Full Name"
             });
-    
+
         expect(res.status).toBe(400);
         expect(res.body).toEqual({
             messages: [
@@ -66,7 +66,7 @@ describe("POST /register", () => {
             ]
         });
     });
-    
+
     it("should return 400 with error message for duplicate username", async () => {
         await request(app)
             .post("/register")
@@ -76,7 +76,7 @@ describe("POST /register", () => {
                 password: "Password%2024",
                 fullName: "Full Name"
             });
-    
+
         const res = await request(app)
             .post("/register")
             .send({
@@ -85,7 +85,7 @@ describe("POST /register", () => {
                 password: "Password%2024",
                 fullName: "Full Name"
             });
-    
+
         expect(res.status).toBe(400);
         expect(res.body).toEqual({
             messages: [
@@ -105,15 +105,29 @@ describe("POST /login", () => {
                 password: "Password%2024",
                 fullName: "Full Name"
             });
-    
+
         const res = await request(app)
             .post("/login")
             .send({
                 email: "myemail@gmail.com",
                 password: "Password%2024"
             });
-    
+
         expect(res.status).toBe(200);
         expect(res.get("Authorization")).toBeDefined();
+    });
+
+    it("should return a 400 status with credentials not found message", async () => {
+        const res = await request(app)
+            .post("/login")
+            .send({
+                email: "myemail@gmail.com",
+                password: "Password%2024"
+            });
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ messages: [
+            "Incorrect email or password."
+        ] });
     });
 });
