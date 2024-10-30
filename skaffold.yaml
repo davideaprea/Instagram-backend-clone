@@ -15,3 +15,11 @@ build:
         manual:
           - dest: "."
             src: "src/**/*.ts"
+    - image: instagram-clone/profile
+      context: profile
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: "."
+            src: "src/**/*.ts"
