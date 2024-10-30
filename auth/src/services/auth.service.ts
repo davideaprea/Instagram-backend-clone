@@ -7,11 +7,14 @@ import { User } from "../types/user.type";
 import createHttpError from "http-errors";
 import { LoginResponse } from "../types/login-response.type";
 import { generateJwt } from "./jwt-manager.service";
+import { Error } from "mongoose";
 
 export const register = async (registerDto: User): Promise<AuthResponse> => {
     const user = new UserModel(registerDto);
 
-    user.validateSync();
+    const err: Error.ValidationError | null = user.validateSync();
+
+    if(err) throw err;
 
     user.password = hashSync(user.password, 12);
 
