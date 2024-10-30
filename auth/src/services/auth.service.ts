@@ -36,6 +36,6 @@ export const login = async (loginDto: LoginDto): Promise<LoginResponse> => {
     return {
         username: userDoc.username,
         fullName: userDoc.fullName,
-        jwt: generateJwt(userDoc.username)
+        jwt: generateJwt(userDoc.id)
     };
 }

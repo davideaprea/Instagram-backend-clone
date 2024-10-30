@@ -79,6 +79,6 @@ const profileSchema = new Schema<Profile, Model<Profile>>({
     }
 });
 
-profileSchema.index({ username: "text" });
+profileSchema.index({ username: "text", fullName: "text" });
 
 export const ProfileModel = model<Profile, Model<Profile>>(ProfileSchemaNames.PROFILE, profileSchema);

@@ -34,7 +34,7 @@ export const verifyJwt: RequestHandler = async (req, res, next): Promise<void> =
     }
 
     req.currentUser = {
-        username: jwt.username
+        userId: jwt.userId
     };
 
     next();
