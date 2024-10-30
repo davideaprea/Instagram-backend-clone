@@ -11,13 +11,13 @@ beforeAll(async () => {
     process.env.JWT_SECRET = "secret";
 });
 
-/* beforeEach(async () => {
+beforeEach(async () => {
     const collections = await connection.db?.collections() || [];
 
     for(const coll of collections) {
         await coll.deleteMany({});
     }
-}); */
+});
 
 afterAll(async () => {
     await mongoServer?.stop();

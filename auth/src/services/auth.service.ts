@@ -24,7 +24,7 @@ export const register = async (registerDto: User): Promise<AuthResponse> => {
 }
 
 export const login = async (loginDto: LoginDto): Promise<LoginResponse> => {
-    const userDoc: UserDocument | null = await UserModel.findOne({ email: loginDto.email });
+    const userDoc: UserDocument | null = await UserModel.findOne({ email: loginDto.email }).populate("password");
 
     if (
         !userDoc ||

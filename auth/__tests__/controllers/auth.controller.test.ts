@@ -40,6 +40,15 @@ it("should return a 400 status with every validation message", async () => {
 });
 
 it("should return 400 with error message for duplicate email", async () => {
+    await request(app)
+        .post("/register")
+        .send({
+            username: "username",
+            email: "email@gmail.com",
+            password: "Password%2024",
+            fullName: "Full Name"
+        });
+
     const res = await request(app)
         .post("/register")
         .send({
@@ -50,12 +59,23 @@ it("should return 400 with error message for duplicate email", async () => {
         });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ messages: [
-        "email@gmail.com is already taken."
-    ] });
+    expect(res.body).toEqual({
+        messages: [
+            "email@gmail.com is already taken."
+        ]
+    });
 });
 
 it("should return 400 with error message for duplicate username", async () => {
+    await request(app)
+        .post("/register")
+        .send({
+            username: "username",
+            email: "email@gmail.com",
+            password: "Password%2024",
+            fullName: "Full Name"
+        });
+
     const res = await request(app)
         .post("/register")
         .send({
@@ -66,7 +86,30 @@ it("should return 400 with error message for duplicate username", async () => {
         });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ messages: [
-        "username is already taken."
-    ] });
+    expect(res.body).toEqual({
+        messages: [
+            "username is already taken."
+        ]
+    });
+});
+
+it("should log in the user", async () => {
+    await request(app)
+        .post("/register")
+        .send({
+            username: "usrnm21",
+            email: "myemail@gmail.com",
+            password: "Password%2024",
+            fullName: "Full Name"
+        });
+
+    const res = await request(app)
+        .post("/login")
+        .send({
+            email: "myemail@gmail.com",
+            password: "Password%2024"
+        });
+
+    expect(res.status).toBe(200);
+    expect(res.get("Authorization")).toBeDefined();
 });
