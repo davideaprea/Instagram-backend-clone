@@ -1,4 +1,5 @@
 export enum ProfileSchemaNames {
     PROFILE = "Profile",
-    FOLLOW = "Follow"
+    FOLLOW = "Follow",
+    BLOCK = "Block"
 }

@@ -11,7 +11,7 @@ const followSchema = new Schema<Follow, Model<Follow>>({
     },
     followingUserId: {
         type: Types.ObjectId,
-        required: [true, "User id is required."],
+        required: [true, "Following user id is required."],
         immutable: true
     },
     status: {

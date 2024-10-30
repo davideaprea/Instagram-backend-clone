@@ -3,7 +3,7 @@ import { Gender } from "./gender.enum";
 import { ProfileVisibility } from "./profile-visibility.enum";
 
 export type Profile = {
-    userId: ObjectId
+    readonly userId: ObjectId
     followers: number
     posts: number
     following: number
@@ -13,5 +13,5 @@ export type Profile = {
     profilePic?: string
     username: string
     fullName: string
-    time: number
+    readonly time: number
 };
