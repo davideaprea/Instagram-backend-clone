@@ -115,6 +115,11 @@ describe("POST /login", () => {
 
         expect(res.status).toBe(200);
         expect(res.get("Authorization")).toBeDefined();
+        expect(res.body).toEqual({
+            username: "usrnm21",
+            fullName: "Full Name"
+        });
+
     });
 
     it("should return a 400 status with credentials not found message", async () => {
