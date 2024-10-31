@@ -1,5 +1,5 @@
 import { ObjectId } from "mongoose";
-import { Gender } from "../enums/gender.enum";
+import { Gender } from "./gender.enum";
 
 export type Profile = {
     readonly userId: ObjectId
