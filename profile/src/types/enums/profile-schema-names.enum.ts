@@ -1,5 +1,6 @@
 export enum ProfileSchemaNames {
     PROFILE = "Profile",
     FOLLOW = "Follow",
-    BLOCK = "Block"
+    BLOCK = "Block",
+    INTERACTION_RULE = "InteractionRule"
 }

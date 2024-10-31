@@ -1,9 +1,7 @@
 import { Model, model, Schema, Types } from "mongoose";
 import { Gender } from "../types/enums/gender.enum";
-import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
 import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
 import { Profile } from "../types/custom-types/profile.type";
-import { InteractionRule } from "../types/enums/interaction-rule.enum";
 
 const profileSchema = new Schema<Profile, Model<Profile>>({
     userId: {
@@ -38,12 +36,6 @@ const profileSchema = new Schema<Profile, Model<Profile>>({
         type: String,
         enum: Object.values(Gender)
     },
-    visibility: {
-        type: String,
-        enum: Object.values(ProfileVisibility),
-        default: ProfileVisibility.PUBLIC,
-        required: true
-    },
     profilePic: String,
     username: {
         type: String,
@@ -59,23 +51,6 @@ const profileSchema = new Schema<Profile, Model<Profile>>({
         immutable: true,
         required: true,
         default: Date.now()
-    },
-    interactionRules: {
-        type: {
-            tag: {
-                type: String,
-                required: true,
-                default: InteractionRule.EVERYONE,
-                enum: Object.values(InteractionRule)
-            },
-            mention: {
-                type: String,
-                required: true,
-                default: InteractionRule.EVERYONE,
-                enum: Object.values(InteractionRule)
-            }
-        },
-        required: true
     }
 });
 
