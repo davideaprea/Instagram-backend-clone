@@ -1,3 +1,3 @@
-import { Profile } from "./profile.type";
+import { Profile } from "@ig-clone/common";
 
-export type EditProfileDto = Pick<Profile, "biography" | "gender" | "visibility" | "username" | "profilePic" | "fullName">;
+export type EditProfileDto = Pick<Profile, "biography" | "gender" | "username" | "profilePic" | "fullName">;

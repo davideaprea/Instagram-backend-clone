@@ -1,5 +1,6 @@
 import { connect } from "mongoose";
 import { app } from ".";
+import { Kafka } from "kafkajs";
 
 const init = async (): Promise<void> => {
     try {
@@ -8,6 +9,13 @@ const init = async (): Promise<void> => {
     } catch (e) {
         console.log("Couldn't connect to the database.", e);
     }
+
+    /* const kafka = new Kafka({
+        clientId: 'my-app',
+        brokers: ['kafka-cluster-ip:9092'],
+    });
+    await kafka.producer().connect();
+    console.log("Successully connected to the kafka broker."); */
 
     app.listen(
         3000,

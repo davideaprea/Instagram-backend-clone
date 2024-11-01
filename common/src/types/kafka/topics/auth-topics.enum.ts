@@ -1,3 +1,3 @@
 export enum AuthTopics {
-    NEW_USER = "new-user"
+    USER_CREATE = "user-create"
 }

@@ -1,7 +1,6 @@
 import { Model, model, Schema, Types } from "mongoose";
-import { Gender } from "../types/enums/gender.enum";
 import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
-import { Profile } from "../types/custom-types/profile.type";
+import { Gender, Profile } from "@ig-clone/common";
 
 const profileSchema = new Schema<Profile, Model<Profile>>({
     userId: {

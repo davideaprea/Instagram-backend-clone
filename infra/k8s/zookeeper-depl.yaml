@@ -1,33 +1,7 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: zookeeper-config
-  labels:
-    app: zookeeper
-data:
-  ZOOKEEPER_CLIENT_PORT: "2181"
-  ZOOKEEPER_TICK_TIME: "2000"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: zookeeper
-  labels:
-    app: zookeeper
-spec:
-  ports:
-    - port: 2181
-      targetPort: 2181
-  clusterIP: None
-  selector:
-    app: zookeeper
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: zookeeper
-  labels:
-    app: zookeeper
+  name: zookeeper-depl
 spec:
   replicas: 1
   selector:
@@ -40,9 +14,21 @@ spec:
     spec:
       containers:
         - name: zookeeper
-          image: bitnami/zookeeper:3.7.0
+          image: bitnami/zookeeper:latest
           ports:
             - containerPort: 2181
-          envFrom:
-            - configMapRef:
-                name: zookeeper-config
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+spec:
+  ports:
+    - port: 2181
+      protocol: TCP
+      targetPort: 2181
+  selector:
+    app: zookeeper

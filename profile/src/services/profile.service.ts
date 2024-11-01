@@ -1,7 +1,7 @@
 import createHttpError from "http-errors";
 import { ProfileModel } from "../models/profile.model";
-import { Profile } from "../types/custom-types/profile.type";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
+import { Profile } from "@ig-clone/common";
 
 export const getProfileByUsername = async (username: string): Promise<Profile> => {
     const profile = await ProfileModel.findOne({ username }, { userId: 0 });

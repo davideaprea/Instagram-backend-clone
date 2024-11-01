@@ -17,3 +17,10 @@ spec:
                 name: auth-cluster-ip
                 port:
                   number: 3000
+          - path: /v1/profile/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: profile-cluster-ip
+                port:
+                  number: 3000

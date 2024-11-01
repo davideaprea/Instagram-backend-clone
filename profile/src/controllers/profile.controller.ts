@@ -1,10 +1,10 @@
 import { RequestHandler } from "express";
 import { BlockModel } from "../models/block.model";
-import { Profile } from "../types/custom-types/profile.type";
 import { Block } from "../types/custom-types/block.type";
 import createHttpError from "http-errors";
 import { getProfileByUsername, getProfilePage } from "../services/profile.service";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
+import { Profile } from "@ig-clone/common";
 
 export const handleGetProfileByUsername: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
