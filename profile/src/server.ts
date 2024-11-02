@@ -10,12 +10,18 @@ const init = async (): Promise<void> => {
         console.log("Couldn't connect to the database.", e);
     }
 
-    /* const kafka = new Kafka({
-        clientId: 'my-app',
-        brokers: ['kafka-cluster-ip:9092'],
+    const kafka = new Kafka({
+        clientId: 'profile',
+        brokers: ['kafka-service:9092'],
     });
-    await kafka.producer().connect();
-    console.log("Successully connected to the kafka broker."); */
+    const consumer = kafka.consumer({ groupId: "profile-group" });
+    await consumer.connect();
+    await consumer.subscribe({ topic: "test-topic", fromBeginning: true });
+    await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+            console.log(`Received message: ${message.value?.toString()}`);
+        },
+    });
 
     app.listen(
         3000,

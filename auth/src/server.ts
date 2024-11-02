@@ -11,12 +11,37 @@ const init = async (): Promise<void> => {
     }
 
     const kafka = new Kafka({
-        clientId: 'my-app',
-        brokers: ['PLAINTEXT://kafka-cluster-ip:9092'],
+        clientId: 'auth',
+        brokers: ['kafka-service:9092'],
     });
 
-    await kafka.producer({ retry: { retries: 10 } }).connect();
-    console.log("Successully connected to the kafka broker.");
+    try {
+        const admin = kafka.admin();
+        await admin.connect();
+        await admin.createTopics({
+            topics: [
+                {
+                    topic: 'test-topic',
+                    numPartitions: 1,
+                    replicationFactor: 1,
+                },
+            ],
+        });
+
+        const producer = kafka.producer();
+        await producer.connect()
+
+        console.log("Successully connected to the kafka broker.");
+
+        producer.send({
+            topic: 'test-topic',
+            messages: [
+                { value: 'Hello microservices!' },
+            ]
+        });
+    } catch (e) {
+        console.log("Couldn't connect to kafka.", e);
+    }
 
     app.listen(
         3000,
