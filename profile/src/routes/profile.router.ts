@@ -4,9 +4,9 @@ import { handleGetProfileByUsername, handleSearchProfiles } from "../controllers
 export const profileRouter: Router = Router();
 
 profileRouter
-.route("/:username")
+.route("/profiles/:username")
 .get(handleGetProfileByUsername);
 
 profileRouter
-.route("/:pattern")
+.route("/profiles/:pattern")
 .get(handleSearchProfiles);

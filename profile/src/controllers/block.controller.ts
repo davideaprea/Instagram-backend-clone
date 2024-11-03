@@ -7,7 +7,7 @@ export const handleGetBlockedUsers: RequestHandler = async (req, res) => {
     const blockedUsers = await BlockModel.find({ userId });
 
     res
-        .send(200)
+        .status(200)
         .json(blockedUsers);
 }
 
