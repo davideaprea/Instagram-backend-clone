@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { handleBlockUser, handleGetBlockedUsers, handleUnblockUser } from "../controllers/block.controller";
 
-export const profileRouter: Router = Router();
+export const blockRouter: Router = Router();
 
-profileRouter
+blockRouter
 .route("/blocks")
 .get(handleGetBlockedUsers);
 
-profileRouter
+blockRouter
 .route("/blocks/:blockedUserId")
 .post(handleBlockUser)
 .delete(handleUnblockUser);
