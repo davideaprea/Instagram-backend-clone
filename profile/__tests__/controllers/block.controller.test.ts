@@ -8,7 +8,7 @@ let token: string;
 let currUserId: Types.ObjectId;
 let newUserId: Types.ObjectId;
 
-beforeAll(async () => {
+beforeEach(async () => {
     const currUser = await ProfileModel.create({
         username: "username",
         fullName: "full name",

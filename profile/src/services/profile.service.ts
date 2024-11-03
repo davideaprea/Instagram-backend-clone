@@ -2,6 +2,7 @@ import createHttpError from "http-errors";
 import { ProfileModel } from "../models/profile.model";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
 import { Profile } from "@ig-clone/common";
+import { Types } from "mongoose";
 
 /**
 * Finds a profile by its username, checking if
@@ -9,7 +10,7 @@ import { Profile } from "@ig-clone/common";
 * queried profile.
 */
 export const getProfileByUsername = async (currUserId: string, username: string): Promise<Profile> => {
-    const profile = await ProfileModel.aggregate<Profile>([
+    const profiles = await ProfileModel.aggregate<Profile>([
         {
             $match: { username }
         },
@@ -23,7 +24,7 @@ export const getProfileByUsername = async (currUserId: string, username: string)
                             $expr: {
                                 $and: [
                                     { $eq: ["$userId", "$$targetUserId"] },
-                                    { $eq: ["$blockedUserId", currUserId] }
+                                    { $eq: ["$blockedUserId", new Types.ObjectId(currUserId)] }
                                 ]
                             }
                         }
@@ -40,11 +41,11 @@ export const getProfileByUsername = async (currUserId: string, username: string)
         }
     ]);
 
-    if (!profile) {
+    if (profiles.length == 0) {
         throw new createHttpError.NotFound("Profile not found.");
     }
 
-    return profile[0];
+    return profiles[0];
 }
 
 /**
