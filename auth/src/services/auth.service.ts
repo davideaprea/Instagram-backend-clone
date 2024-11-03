@@ -18,9 +18,9 @@ export const register = async (registerDto: User): Promise<AuthResponse> => {
 
     user.password = hashSync(user.password, 12);
 
-    const { username, fullName } = await user.save({validateBeforeSave: false});
+    const { username, fullName, _id } = await user.save({validateBeforeSave: false});
 
-    return { username, fullName };
+    return { username, fullName, id: _id};
 }
 
 export const login = async (loginDto: LoginDto): Promise<LoginResponse> => {

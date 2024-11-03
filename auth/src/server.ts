@@ -1,6 +1,8 @@
 import { connect } from "mongoose";
 import { app } from ".";
-import { Kafka } from "kafkajs";
+import { AuthTopics } from "@ig-clone/common";
+import { kafka } from "./configs/kafka.config";
+import { authProducer } from "./configs/auth.producer";
 
 const init = async (): Promise<void> => {
     try {
@@ -10,35 +12,24 @@ const init = async (): Promise<void> => {
         console.log("Couldn't connect to the database.", e);
     }
 
-    const kafka = new Kafka({
-        clientId: 'auth',
-        brokers: ['kafka-service:9092'],
-    });
-
     try {
         const admin = kafka.admin();
+
         await admin.connect();
         await admin.createTopics({
             topics: [
                 {
-                    topic: 'test-topic',
+                    topic: AuthTopics.USER_CREATE,
                     numPartitions: 1,
                     replicationFactor: 1,
                 },
             ],
         });
-
-        const producer = kafka.producer();
-        await producer.connect()
+        await admin.disconnect();
+        
+        await authProducer.connect()
 
         console.log("Successully connected to the kafka broker.");
-
-        producer.send({
-            topic: 'test-topic',
-            messages: [
-                { value: 'Hello microservices!' },
-            ]
-        });
     } catch (e) {
         console.log("Couldn't connect to kafka.", e);
     }
