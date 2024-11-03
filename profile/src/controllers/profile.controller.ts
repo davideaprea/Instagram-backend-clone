@@ -1,21 +1,12 @@
 import { RequestHandler } from "express";
-import { BlockModel } from "../models/block.model";
-import { Block } from "../types/custom-types/block.type";
-import createHttpError from "http-errors";
 import { getProfileByUsername, getProfilePage } from "../services/profile.service";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
-import { Profile } from "@ig-clone/common";
 
 export const handleGetProfileByUsername: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
     const profileUsername: string = req.params.username;
 
-    const profile: Profile = await getProfileByUsername(profileUsername);
-    const block: Block | null = await BlockModel.findOne({ userId: profile.userId, blockedUserId: currUserId });
-
-    if (block) {
-        throw new createHttpError.NotFound("Profile not found.");
-    }
+    const profile = await getProfileByUsername(currUserId, profileUsername);
 
     res
         .status(200)
@@ -26,8 +17,9 @@ export const handleSearchProfiles: RequestHandler = async (req, res): Promise<vo
     const lastId: string | undefined = req.params.lastId;
     const title: string = req.params.pattern.replaceAll("+", " ");
     const limit: number = Number(req.params.limit);
+    const currUserId: string = req.currentUser!.userId;
 
-    const results: ProfileSearch[] = await getProfilePage(title, limit, lastId);
+    const results: ProfileSearch[] = await getProfilePage(currUserId, title, limit, lastId);
 
     res
         .status(200)
