@@ -15,11 +15,11 @@ export const handleGetProfileByUsername: RequestHandler = async (req, res) => {
 
 export const handleSearchProfiles: RequestHandler = async (req, res): Promise<void> => {
     const lastId: string | undefined = req.params.lastId;
-    const title: string = req.params.pattern.replaceAll("+", " ");
+    const pattern: string = req.params.pattern.replaceAll("+", " ");
     const limit: number = Number(req.params.limit);
     const currUserId: string = req.currentUser!.userId;
 
-    const results: ProfileSearch[] = await getProfilePage(currUserId, title, limit, lastId);
+    const results: ProfileSearch[] = await getProfilePage(currUserId, pattern, limit, lastId);
 
     res
         .status(200)

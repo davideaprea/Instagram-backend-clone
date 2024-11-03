@@ -47,6 +47,11 @@ export const getProfileByUsername = async (currUserId: string, username: string)
     return profile[0];
 }
 
+/**
+* Finds profiles by the given pattern, checking if
+* the current user hasn't been blocked by the
+* queried profiles.
+*/
 export const getProfilePage = async (currUserId: string, pattern: string, limit: number = 10, lastId?: string): Promise<ProfileSearch[]> => {
     const query: Record<string, any> = { $text: { $search: pattern } };
 
