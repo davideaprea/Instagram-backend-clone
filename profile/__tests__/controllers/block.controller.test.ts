@@ -1,12 +1,12 @@
-import { Types } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
 import { sign } from "jsonwebtoken";
 import { app } from "../../src";
 import request from "supertest";
 
 let token: string;
-let currUserId: Types.ObjectId;
-let newUserId: Types.ObjectId;
+let currUserId: Schema.Types.ObjectId;
+let newUserId: Schema.Types.ObjectId;
 
 beforeEach(async () => {
     const currUser = await ProfileModel.create({
@@ -21,8 +21,8 @@ beforeEach(async () => {
         userId: new Types.ObjectId()
     });
 
-    currUserId = currUser._id;
-    newUserId = newUser._id;
+    currUserId = currUser.userId;
+    newUserId = newUser.userId;
 
     token = sign({ userId: currUser.userId }, process.env.JWT_SECRET!);
 });
@@ -40,6 +40,14 @@ describe("POST /blocks", () => {
         expect(blockRes.status).toBe(204);
         expect(blockedUsersRes.status).toBe(200);
         expect(blockedUsersRes.body).toHaveLength(1);
+    });
+
+    it("should give a 400 because the user can't block himself", async () => {
+        const res = await request(app)
+            .post("/blocks/" + currUserId.toString())
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(res.status).toBe(400);
     });
 });
 

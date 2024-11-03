@@ -9,7 +9,7 @@ import { Types } from "mongoose";
 * the current user hasn't been blocked by the
 * queried profile.
 */
-export const getProfileByUsername = async (currUserId: string, username: string): Promise<Profile> => {
+export const getProfileByUsername = async (currUserId: Types.ObjectId, username: string): Promise<Profile> => {
     const profiles = await ProfileModel.aggregate<Profile>([
         {
             $match: { username }
@@ -24,7 +24,7 @@ export const getProfileByUsername = async (currUserId: string, username: string)
                             $expr: {
                                 $and: [
                                     { $eq: ["$userId", "$$targetUserId"] },
-                                    { $eq: ["$blockedUserId", new Types.ObjectId(currUserId)] }
+                                    { $eq: ["$blockedUserId", currUserId] }
                                 ]
                             }
                         }
@@ -53,7 +53,7 @@ export const getProfileByUsername = async (currUserId: string, username: string)
 * the current user hasn't been blocked by the
 * queried profiles.
 */
-export const getProfilePage = async (currUserId: string, pattern: string, limit: number = 10, lastId?: string): Promise<ProfileSearch[]> => {
+export const getProfilePage = async (currUserId: Types.ObjectId, pattern: string, limit: number = 10, lastId?: string): Promise<ProfileSearch[]> => {
     const query: Record<string, any> = { $text: { $search: pattern } };
 
     if (lastId) query._id = { $gt: lastId };

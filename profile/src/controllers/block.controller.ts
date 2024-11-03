@@ -15,6 +15,10 @@ export const handleGetBlockedUsers: RequestHandler = async (req, res) => {
 export const handleBlockUser: RequestHandler = async (req, res) => {
     const userId: string = req.currentUser!.userId;
     const blockedUserId: string = req.params.blockedUserId;
+    
+    if(userId == blockedUserId) {
+        throw new createHttpError.BadRequest("You can't block yourself.")
+    }
 
     await BlockModel.create({ userId, blockedUserId });
 
