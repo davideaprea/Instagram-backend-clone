@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { BlockModel } from "../models/block.model";
+import createHttpError from "http-errors";
 
 export const handleGetBlockedUsers: RequestHandler = async (req, res) => {
     const userId: string = req.currentUser!.userId;
@@ -26,7 +27,11 @@ export const handleUnblockUser: RequestHandler = async (req, res) => {
     const userId: string = req.currentUser!.userId;
     const blockedUserId: string = req.params.blockedUserId;
 
-    await BlockModel.deleteOne({ userId, blockedUserId });
+    const deleteRes = await BlockModel.deleteOne({ userId, blockedUserId });
+
+    if(deleteRes.deletedCount == 0) {
+        throw new createHttpError.NotFound("Profile not found");
+    }
 
     res
         .status(204)
