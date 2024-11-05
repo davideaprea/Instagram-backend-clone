@@ -4,4 +4,5 @@ export type Follow = {
     readonly userId: ObjectId,
     readonly followingUserId: ObjectId,
     readonly time: number
+    isAccepted: boolean
 };

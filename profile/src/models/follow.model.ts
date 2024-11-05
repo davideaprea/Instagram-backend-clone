@@ -18,10 +18,14 @@ const followSchema = new Schema<Follow, Model<Follow>>({
         immutable: true,
         required: true,
         default: Date.now()
+    },
+    isAccepted: {
+        type: Boolean,
+        required: true,
+        default: true
     }
 });
 
 followSchema.index({ userId: 1, followingUserId: 1 }, { unique: true });
 
 export const FollowModel = model<Follow, Model<Follow>>(ProfileSchemaNames.FOLLOW, followSchema);
-export const FollowRequestModel = model<Follow, Model<Follow>>(ProfileSchemaNames.FOLLOW_REQUEST, followSchema);
