@@ -108,8 +108,8 @@ export const getProfileById = async (id: ObjectId): Promise<Profile> => {
     return profile;
 }
 
-export const getProfileRules = async (userId: ObjectId): Promise<ProfileInteractionRules> => {
-    const rules = await InteractionRuleModel.findOne({ userId })
+export const getProfileRules = async (userId: string): Promise<ProfileInteractionRules> => {
+    const rules = await InteractionRuleModel.findOne({ userId });
 
     if (!rules) {
         throw new createHttpError.NotFound("Profile not found.");

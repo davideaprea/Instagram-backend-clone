@@ -1,3 +1,4 @@
-import { Follow } from "./follow.type";
-
-export type FollowDto = Pick<Follow, "userId" | "followingUserId">;
+export type FollowDto = {
+    readonly userId: string
+    readonly followingUserId: string
+};

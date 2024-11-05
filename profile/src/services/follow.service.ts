@@ -5,7 +5,6 @@ import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
 import { ProfileModel } from "../models/profile.model";
 import { FollowDto } from "../types/custom-types/follow-dto.type";
 import createHttpError from "http-errors";
-import { Follow } from "../types/custom-types/follow.type";
 
 export const follow = async (dto: FollowDto): Promise<void> => {
     transactionHandler(async session => {
