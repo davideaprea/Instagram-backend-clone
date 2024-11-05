@@ -5,6 +5,7 @@ import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
 import { ProfileModel } from "../models/profile.model";
 import { FollowDto } from "../types/custom-types/follow-dto.type";
 import { ObjectId } from "mongoose";
+import createHttpError from "http-errors";
 
 export const follow = async (dto: FollowDto): Promise<void> => {
     transactionHandler(async session => {
@@ -13,20 +14,27 @@ export const follow = async (dto: FollowDto): Promise<void> => {
             { session }
         );
 
+        const updateResult = await ProfileModel.bulkWrite([
+            {
+                updateOne: {
+                    filter: { userId: dto.userId },
+                    update: { $inc: { following: 1 } }
+                }
+            },
+            {
+                updateOne: {
+                    filter: { userId: dto.followingUserId },
+                    update: { $inc: { followers: 1 } }
+                }
+            }
+        ], { session });
+
+        if(updateResult.modifiedCount != 2) {
+            throw new createHttpError.NotFound("Profile not found.");
+        }
+
         await FollowModel.create(
             { userId: dto.userId, followingUserId: dto.followingUserId },
-            { session }
-        );
-
-        await ProfileModel.findByIdAndUpdate(
-            dto.userId,
-            { $inc: { following: 1 } },
-            { session }
-        );
-
-        await ProfileModel.findByIdAndUpdate(
-            dto.followingUserId,
-            { $inc: { followers: 1 } },
             { session }
         );
     });
@@ -45,25 +53,32 @@ export const addFollowOrRequest = async (dto: FollowDto): Promise<void> => {
 
 export const unfollow = async (dto: FollowDto): Promise<void> => {
     transactionHandler(async session => {
-        await FollowModel.deleteOne(
+        const deletionResult = await FollowModel.deleteOne(
             { userId: dto.userId, followingUserId: dto.followingUserId },
             { session }
         );
 
-        await ProfileModel.findByIdAndUpdate(
-            dto.userId,
-            { $inc: { following: -1 } },
-            { session }
-        );
+        const updateResult = await ProfileModel.bulkWrite([
+            {
+                updateOne: {
+                    filter: { userId: dto.userId },
+                    update: { $inc: { following: -1 } }
+                }
+            },
+            {
+                updateOne: {
+                    filter: { userId: dto.followingUserId },
+                    update: { $inc: { followers: -1 } }
+                }
+            }
+        ], { session });
 
-        await ProfileModel.findByIdAndUpdate(
-            dto.followingUserId,
-            { $inc: { followers: -1 } },
-            { session }
-        );
+        if (deletionResult.deletedCount + updateResult.modifiedCount != 3) {
+            throw new createHttpError.NotFound("Follow relationship not found.")
+        }
     });
 }
 
 export const getFollowRequests = async (currUserId: ObjectId) => {
-    
+
 }
