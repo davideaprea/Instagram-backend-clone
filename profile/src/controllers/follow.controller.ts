@@ -1,15 +1,15 @@
 import { RequestHandler } from "express";
-import { acceptFollow, addFollowOrRequest } from "../services/follow.service";
+import { acceptFollow, addFollowOrRequest, unfollow } from "../services/follow.service";
 
 export const handleFollow: RequestHandler = async (req, res) => {
     const userId: string = req.currentUser!.userId;
     const followingUserId: string = req.params.followingUserId;
 
-    await addFollowOrRequest(userId, followingUserId);
+    const followRes = await addFollowOrRequest(userId, followingUserId);
 
     res
-        .status(204)
-        .send();
+        .status(200)
+        .json(followRes);
 }
 
 export const handleAcceptFollow: RequestHandler = async (req, res) => {
@@ -17,6 +17,17 @@ export const handleAcceptFollow: RequestHandler = async (req, res) => {
     const followId: string = req.params.followId;
 
     await acceptFollow(followId, followingUserId);
+
+    res
+        .status(204)
+        .send();
+}
+
+export const handleUnfollow: RequestHandler = async (req, res) => {
+    const currUserId: string = req.currentUser!.userId;
+    const followedUserId: string = req.params.followId;
+
+    await unfollow(currUserId, followedUserId);
 
     res
         .status(204)

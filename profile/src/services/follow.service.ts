@@ -3,7 +3,6 @@ import { FollowModel } from "../models/follow.model";
 import { getProfileRules } from "./profile.service";
 import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
 import { ProfileModel } from "../models/profile.model";
-import { FollowDto } from "../types/custom-types/follow-dto.type";
 import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
 
@@ -39,13 +38,15 @@ const follow = async (userId: string, followingUserId: string): Promise<void> =>
     });
 }
 
-export const addFollowOrRequest = async (userId: string, followingUserId: string): Promise<void> => {
+export const addFollowOrRequest = async (userId: string, followingUserId: string): Promise<{ isAccepted: boolean }> => {
     const profileRule = await getProfileRules(followingUserId);
 
     if (profileRule.visibility == ProfileVisibility.PUBLIC) {
         await follow(userId, followingUserId);
+        return { isAccepted: true };
     }
-    else await FollowModel.create(
+
+    await FollowModel.create(
         {
             userId,
             followingUserId,
@@ -53,25 +54,26 @@ export const addFollowOrRequest = async (userId: string, followingUserId: string
         }
     );
 
+    return { isAccepted: true };
 }
 
-export const unfollow = async (dto: FollowDto): Promise<void> => {
+export const unfollow = async (userId: string, followingUserId: string): Promise<void> => {
     transactionHandler(async session => {
         const deletionResult = await FollowModel.deleteOne(
-            { userId: dto.userId, followingUserId: dto.followingUserId },
+            { userId, followingUserId },
             { session }
         );
 
         const updateResult = await ProfileModel.bulkWrite([
             {
                 updateOne: {
-                    filter: { userId: dto.userId },
+                    filter: { userId },
                     update: { $inc: { following: -1 } }
                 }
             },
             {
                 updateOne: {
-                    filter: { userId: dto.followingUserId },
+                    filter: { userId: followingUserId },
                     update: { $inc: { followers: -1 } }
                 }
             }
