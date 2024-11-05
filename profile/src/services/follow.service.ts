@@ -4,8 +4,9 @@ import { getProfileRules } from "./profile.service";
 import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
 import { ProfileModel } from "../models/profile.model";
 import { FollowDto } from "../types/custom-types/follow-dto.type";
-import { ObjectId } from "mongoose";
+import { ObjectId, RootFilterQuery } from "mongoose";
 import createHttpError from "http-errors";
+import { Follow } from "../types/custom-types/follow.type";
 
 export const follow = async (dto: FollowDto): Promise<void> => {
     transactionHandler(async session => {
@@ -29,7 +30,7 @@ export const follow = async (dto: FollowDto): Promise<void> => {
             }
         ], { session });
 
-        if(updateResult.modifiedCount != 2) {
+        if (updateResult.modifiedCount != 2) {
             throw new createHttpError.NotFound("Profile not found.");
         }
 
@@ -79,6 +80,14 @@ export const unfollow = async (dto: FollowDto): Promise<void> => {
     });
 }
 
-export const getFollowRequests = async (currUserId: ObjectId) => {
+export const getFollowRequests = async (currUserId: ObjectId, limit: number = 10, lastReqId?: ObjectId): Promise<Follow[]> => {
+    const query: RootFilterQuery<Follow> = { followingUserId: currUserId };
 
+    if (lastReqId) query._id = { $gt: lastReqId };
+    if (limit > 50 || limit <= 0) limit = 10;
+
+    return await FollowRequestModel
+        .find(query)
+        .sort({ _id: 1 })
+        .limit(limit);
 }
