@@ -6,18 +6,23 @@ import { ProfileModel } from "../models/profile.model";
 import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
 
-const updateFollowInfo = async (userId: string | ObjectId, followingUserId: string | ObjectId, session: ClientSession): Promise<void> => {
+const updateFollowInfo = async (
+    userId: string | ObjectId,
+    followingUserId: string | ObjectId,
+    session: ClientSession,
+    multiplier: 1 | -1 = 1
+): Promise<void> => {
     const updateResult = await ProfileModel.bulkWrite([
         {
             updateOne: {
                 filter: { userId },
-                update: { $inc: { following: 1 } }
+                update: { $inc: { following: 1 * multiplier } }
             }
         },
         {
             updateOne: {
                 filter: { userId: followingUserId },
-                update: { $inc: { followers: 1 } }
+                update: { $inc: { followers: 1 * multiplier } }
             }
         }
     ], { session });
@@ -64,24 +69,11 @@ export const unfollow = async (userId: string, followingUserId: string): Promise
             { session }
         );
 
-        const updateResult = await ProfileModel.bulkWrite([
-            {
-                updateOne: {
-                    filter: { userId },
-                    update: { $inc: { following: -1 } }
-                }
-            },
-            {
-                updateOne: {
-                    filter: { userId: followingUserId },
-                    update: { $inc: { followers: -1 } }
-                }
-            }
-        ], { session });
-
-        if (deletionResult.deletedCount + updateResult.modifiedCount != 3) {
+        if (deletionResult.deletedCount != 1) {
             throw new createHttpError.NotFound("Follow relationship not found.")
         }
+
+        await updateFollowInfo(userId, followingUserId, session, -1);
     });
 }
 
