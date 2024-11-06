@@ -4,6 +4,7 @@ import { FollowModel } from "../models/follow.model";
 import { updateFollowInfo } from "./follow.service";
 import { ProfileModel } from "../models/profile.model";
 import createHttpError from "http-errors";
+import { ClientSession } from "mongoose";
 
 export const blockUser = async (userId: string, blockedUserId: string): Promise<void> => {
     transactionHandler(async session => {
@@ -58,4 +59,16 @@ export const blockUser = async (userId: string, blockedUserId: string): Promise<
             }
         }
     });
+}
+
+export const isUserBlocked = async (userId: string, blockedUserId: string, session?: ClientSession): Promise<void> => {
+    const block = await BlockModel.findOne(
+        { userId, blockedUserId },
+        undefined,
+        { session }
+    );
+
+    if (block) {
+        throw new createHttpError.NotFound("Profile not found.");
+    }
 }
