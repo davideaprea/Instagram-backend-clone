@@ -35,10 +35,8 @@ export const updateFollowInfo = async (
 
 const follow = async (userId: string, followingUserId: string): Promise<void> => {
     transactionHandler(async session => {
-        await areUsersBlocked(followingUserId, userId, session);
-
         await updateFollowInfo(userId, followingUserId, session);
-
+        
         await FollowModel.create(
             { userId, followingUserId, isAccepted: true },
             { session }
@@ -47,6 +45,8 @@ const follow = async (userId: string, followingUserId: string): Promise<void> =>
 }
 
 export const addFollowOrRequest = async (userId: string, followingUserId: string): Promise<{ isAccepted: boolean }> => {
+    await areUsersBlocked(followingUserId, userId);
+
     const profileRule = await getProfileRules(followingUserId);
 
     if (profileRule.visibility == ProfileVisibility.PUBLIC) {

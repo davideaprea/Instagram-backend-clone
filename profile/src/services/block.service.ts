@@ -6,6 +6,22 @@ import { ProfileModel } from "../models/profile.model";
 import createHttpError from "http-errors";
 import { ClientSession } from "mongoose";
 
+const findAndUpdateFollow = async (userId: string, blockedUserId: string, session: ClientSession): Promise<void> => {
+    const followsToDelete = await FollowModel.find(
+        {
+            $or: [
+                { userId, followingUserId: blockedUserId },
+                { userId: blockedUserId, followingUserId: userId }
+            ]
+        },
+        undefined,
+        { session }
+    );
+
+    const follow = followsToDelete[0];
+    await updateFollowInfo(follow.userId, follow.followingUserId, session, -1);
+}
+
 export const blockUser = async (userId: string, blockedUserId: string): Promise<void> => {
     transactionHandler(async session => {
         await BlockModel.create(
@@ -24,19 +40,7 @@ export const blockUser = async (userId: string, blockedUserId: string): Promise<
         );
 
         if (deleteResult.deletedCount == 1) {
-            const followsToDelete = await FollowModel.find(
-                {
-                    $or: [
-                        { userId, followingUserId: blockedUserId },
-                        { userId: blockedUserId, followingUserId: userId }
-                    ]
-                },
-                undefined,
-                { session }
-            );
-
-            const follow = followsToDelete[0];
-            await updateFollowInfo(follow.userId, follow.followingUserId, session, -1);
+            await findAndUpdateFollow(userId, blockedUserId, session);
         }
         else {
             const updateResult = await ProfileModel.bulkWrite([
