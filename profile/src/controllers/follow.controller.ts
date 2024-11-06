@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { acceptFollow, addFollowOrRequest, unfollow } from "../services/follow.service";
+import { acceptFollow, addFollowOrRequest, transUnfollow } from "../services/follow.service";
 
 export const handleFollow: RequestHandler = async (req, res) => {
     const userId: string = req.currentUser!.userId;
@@ -27,7 +27,7 @@ export const handleUnfollow: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
     const followedUserId: string = req.params.followId;
 
-    await unfollow(currUserId, followedUserId);
+    await transUnfollow(currUserId, followedUserId);
 
     res
         .status(204)

@@ -26,10 +26,10 @@ export const blockUser = async (userId: string, blockedUserId: string): Promise<
         const firstFollow = followsToDelete[0];
 
         if (followsToDelete.length == 1) {
-            await unfollow(firstFollow.userId, firstFollow.followingUserId);
+            await unfollow(firstFollow.userId, firstFollow.followingUserId, session);
         }
         else if (followsToDelete.length == 2) {
-            await removeRelationship(firstFollow.userId, firstFollow.followingUserId);
+            await removeRelationship(firstFollow.userId, firstFollow.followingUserId, session);
         }
     });
 }

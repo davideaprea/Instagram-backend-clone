@@ -65,19 +65,17 @@ export const addFollowOrRequest = async (userId: string, followingUserId: string
     return { isAccepted: true };
 }
 
-export const unfollow = async (userId: string | ObjectId, followingUserId: string | ObjectId): Promise<void> => {
-    transactionHandler(async session => {
-        const deletionResult = await FollowModel.deleteOne(
-            { userId, followingUserId },
-            { session }
-        );
+export const unfollow = async (userId: string | ObjectId, followingUserId: string | ObjectId, session: ClientSession): Promise<void> => {
+    const deletionResult = await FollowModel.deleteOne(
+        { userId, followingUserId },
+        { session }
+    );
 
-        if (deletionResult.deletedCount != 1) {
-            throw new createHttpError.NotFound("Follow relationship not found.")
-        }
+    if (deletionResult.deletedCount != 1) {
+        throw new createHttpError.NotFound("Follow relationship not found.")
+    }
 
-        await updateFollowInfo(userId, followingUserId, session, -1);
-    });
+    await updateFollowInfo(userId, followingUserId, session, -1);
 }
 
 export const acceptFollow = async (id: string, currUserId: string): Promise<void> => {
@@ -99,39 +97,41 @@ export const acceptFollow = async (id: string, currUserId: string): Promise<void
     });
 }
 
-export const removeRelationship = async (firstUserId: string | ObjectId, secondUserId: string | ObjectId) => {
-    transactionHandler(async session => {
-        const deleteResult = await FollowModel.deleteMany(
-            {
-                $or: [
-                    { userId: firstUserId, followingUserId: secondUserId },
-                    { userId: secondUserId, followingUserId: firstUserId }
-                ]
-            },
-            { session }
-        );
+export const removeRelationship = async (firstUserId: string | ObjectId, secondUserId: string | ObjectId, session: ClientSession) => {
+    const deleteResult = await FollowModel.deleteMany(
+        {
+            $or: [
+                { userId: firstUserId, followingUserId: secondUserId },
+                { userId: secondUserId, followingUserId: firstUserId }
+            ]
+        },
+        { session }
+    );
 
-        if(deleteResult.deletedCount != 2) {
-            throw new createHttpError.NotFound("Profile not found.");
-        }
+    if (deleteResult.deletedCount != 2) {
+        throw new createHttpError.NotFound("Profile not found.");
+    }
 
-        const updateResult = await ProfileModel.bulkWrite([
-            {
-                updateOne: {
-                    filter: { userId: firstUserId },
-                    update: { $inc: { followers: -1, following: -1 } }
-                }
-            },
-            {
-                updateOne: {
-                    filter: { userId: secondUserId },
-                    update: { $inc: { followers: -1, following: -1 } }
-                }
+    const updateResult = await ProfileModel.bulkWrite([
+        {
+            updateOne: {
+                filter: { userId: firstUserId },
+                update: { $inc: { followers: -1, following: -1 } }
             }
-        ], { session });
-
-        if (updateResult.modifiedCount != 2) {
-            throw new createHttpError.NotFound("Profile not found.");
+        },
+        {
+            updateOne: {
+                filter: { userId: secondUserId },
+                update: { $inc: { followers: -1, following: -1 } }
+            }
         }
-    })
+    ], { session });
+
+    if (updateResult.modifiedCount != 2) {
+        throw new createHttpError.NotFound("Profile not found.");
+    }
+}
+
+export const transUnfollow = async (userId: string | ObjectId, followingUserId: string | ObjectId) => {
+    transactionHandler(async session => unfollow(userId, followingUserId, session));
 }
