@@ -86,12 +86,14 @@ export const unfollow = async (ids: FollowIds, session: ClientSession): Promise<
     await updateFollowInfo(ids, session, -1);
 }
 
-export const acceptFollow = async (id: string, currUserId: string): Promise<void> => {
+export const acceptFollow = async (ids: FollowIds): Promise<void> => {
+    const { userId, followingUserId } = ids;
+
     transactionHandler(async session => {
         const res = await FollowModel.findOneAndUpdate(
             {
-                _id: id,
-                followingUserId: currUserId,
+                userId,
+                followingUserId,
                 isAccepted: false
             },
             { isAccepted: true }

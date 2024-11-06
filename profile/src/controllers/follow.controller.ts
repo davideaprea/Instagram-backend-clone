@@ -5,7 +5,7 @@ export const handleFollow: RequestHandler = async (req, res) => {
     const userId: string = req.currentUser!.userId;
     const followingUserId: string = req.params.followingUserId;
 
-    const followRes = await addFollowOrRequest(userId, followingUserId);
+    const followRes = await addFollowOrRequest({ userId, followingUserId });
 
     res
         .status(200)
@@ -14,9 +14,9 @@ export const handleFollow: RequestHandler = async (req, res) => {
 
 export const handleAcceptFollow: RequestHandler = async (req, res) => {
     const followingUserId: string = req.currentUser!.userId;
-    const followId: string = req.params.followId;
+    const userId: string = req.params.userId;
 
-    await acceptFollow(followId, followingUserId);
+    await acceptFollow({ userId, followingUserId });
 
     res
         .status(204)
@@ -24,10 +24,10 @@ export const handleAcceptFollow: RequestHandler = async (req, res) => {
 }
 
 export const handleUnfollow: RequestHandler = async (req, res) => {
-    const currUserId: string = req.currentUser!.userId;
-    const followedUserId: string = req.params.followId;
+    const userId: string = req.currentUser!.userId;
+    const followingUserId: string = req.params.followingUserId;
 
-    await transUnfollow(currUserId, followedUserId);
+    await transUnfollow({ userId, followingUserId });
 
     res
         .status(204)
