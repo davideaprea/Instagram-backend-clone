@@ -5,7 +5,7 @@ import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
 import { ProfileModel } from "../models/profile.model";
 import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
-import { isUserBlocked } from "./block.service";
+import { areUsersBlocked } from "./block.service";
 
 export const updateFollowInfo = async (
     userId: string | ObjectId,
@@ -35,7 +35,7 @@ export const updateFollowInfo = async (
 
 const follow = async (userId: string, followingUserId: string): Promise<void> => {
     transactionHandler(async session => {
-        await isUserBlocked(followingUserId, userId, session);
+        await areUsersBlocked(followingUserId, userId, session);
 
         await updateFollowInfo(userId, followingUserId, session);
 

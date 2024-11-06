@@ -61,9 +61,14 @@ export const blockUser = async (userId: string, blockedUserId: string): Promise<
     });
 }
 
-export const isUserBlocked = async (userId: string, blockedUserId: string, session?: ClientSession): Promise<void> => {
+export const areUsersBlocked = async (userId: string, blockedUserId: string, session?: ClientSession): Promise<void> => {
     const block = await BlockModel.findOne(
-        { userId, blockedUserId },
+        {
+            $or: [
+                { userId, blockedUserId },
+                { userId: blockedUserId, blockedUserId: userId }
+            ]
+        },
         undefined,
         { session }
     );
