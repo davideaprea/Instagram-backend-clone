@@ -1,5 +1,5 @@
-export type FollowDto = {
-    readonly userId: string
-    readonly followingUserId: string,
+import { FollowIds } from "./follow-ids.type"
+
+export type FollowDto = FollowIds & {
     isAccepted: boolean
 };

@@ -6,13 +6,15 @@ import { ProfileModel } from "../models/profile.model";
 import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
 import { areUsersBlocked } from "./block.service";
+import { FollowIds } from "../types/custom-types/follow-ids.type";
 
 const updateFollowInfo = async (
-    userId: string | ObjectId,
-    followingUserId: string | ObjectId,
+    ids: FollowIds,
     session: ClientSession,
     multiplier: 1 | -1 = 1
 ): Promise<void> => {
+    const { userId, followingUserId } = ids;
+
     const updateResult = await ProfileModel.bulkWrite([
         {
             updateOne: {
@@ -33,9 +35,11 @@ const updateFollowInfo = async (
     }
 }
 
-const follow = async (userId: string, followingUserId: string): Promise<void> => {
+const follow = async (ids: FollowIds): Promise<void> => {
+    const { userId, followingUserId } = ids;
+
     transactionHandler(async session => {
-        await updateFollowInfo(userId, followingUserId, session);
+        await updateFollowInfo(ids, session);
 
         await FollowModel.create(
             { userId, followingUserId, isAccepted: true },
@@ -44,13 +48,15 @@ const follow = async (userId: string, followingUserId: string): Promise<void> =>
     });
 }
 
-export const addFollowOrRequest = async (userId: string, followingUserId: string): Promise<{ isAccepted: boolean }> => {
+export const addFollowOrRequest = async (ids: FollowIds): Promise<{ isAccepted: boolean }> => {
+    const { userId, followingUserId } = ids;
+
     await areUsersBlocked(followingUserId, userId);
 
     const profileRule = await getProfileRules(followingUserId);
 
     if (profileRule.visibility == ProfileVisibility.PUBLIC) {
-        await follow(userId, followingUserId);
+        await follow(ids);
         return { isAccepted: true };
     }
 
@@ -65,7 +71,9 @@ export const addFollowOrRequest = async (userId: string, followingUserId: string
     return { isAccepted: true };
 }
 
-export const unfollow = async (userId: string | ObjectId, followingUserId: string | ObjectId, session: ClientSession): Promise<void> => {
+export const unfollow = async (ids: FollowIds, session: ClientSession): Promise<void> => {
+    const { userId, followingUserId } = ids;
+
     const deletionResult = await FollowModel.deleteOne(
         { userId, followingUserId },
         { session }
@@ -75,7 +83,7 @@ export const unfollow = async (userId: string | ObjectId, followingUserId: strin
         throw new createHttpError.NotFound("Follow relationship not found.")
     }
 
-    await updateFollowInfo(userId, followingUserId, session, -1);
+    await updateFollowInfo(ids, session, -1);
 }
 
 export const acceptFollow = async (id: string, currUserId: string): Promise<void> => {
@@ -93,7 +101,7 @@ export const acceptFollow = async (id: string, currUserId: string): Promise<void
             throw new createHttpError.NotFound("Follow request not found.");
         }
 
-        await updateFollowInfo(res.userId, res.followingUserId, session);
+        await updateFollowInfo(res, session);
     });
 }
 
@@ -132,6 +140,6 @@ export const removeRelationship = async (firstUserId: string | ObjectId, secondU
     }
 }
 
-export const transUnfollow = async (userId: string | ObjectId, followingUserId: string | ObjectId) => {
-    transactionHandler(async session => unfollow(userId, followingUserId, session));
+export const transUnfollow = async (ids: FollowIds) => {
+    transactionHandler(async session => unfollow(ids, session));
 }

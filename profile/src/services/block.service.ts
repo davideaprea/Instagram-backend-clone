@@ -3,7 +3,7 @@ import { BlockModel } from "../models/block.model"
 import { FollowModel } from "../models/follow.model";
 import { removeRelationship, unfollow } from "./follow.service";
 import createHttpError from "http-errors";
-import { ClientSession } from "mongoose";
+import { ClientSession, ObjectId } from "mongoose";
 
 export const blockUser = async (userId: string, blockedUserId: string): Promise<void> => {
     transactionHandler(async session => {
@@ -26,7 +26,7 @@ export const blockUser = async (userId: string, blockedUserId: string): Promise<
         const firstFollow = followsToDelete[0];
 
         if (followsToDelete.length == 1) {
-            await unfollow(firstFollow.userId, firstFollow.followingUserId, session);
+            await unfollow(firstFollow, session);
         }
         else if (followsToDelete.length == 2) {
             await removeRelationship(firstFollow.userId, firstFollow.followingUserId, session);
@@ -34,7 +34,7 @@ export const blockUser = async (userId: string, blockedUserId: string): Promise<
     });
 }
 
-export const areUsersBlocked = async (userId: string, blockedUserId: string, session?: ClientSession): Promise<void> => {
+export const areUsersBlocked = async (userId: string | ObjectId, blockedUserId: string | ObjectId, session?: ClientSession): Promise<void> => {
     const block = await BlockModel.findOne(
         {
             $or: [
