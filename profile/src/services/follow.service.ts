@@ -6,7 +6,7 @@ import { ProfileModel } from "../models/profile.model";
 import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
 
-const updateFollowInfo = async (
+export const updateFollowInfo = async (
     userId: string | ObjectId,
     followingUserId: string | ObjectId,
     session: ClientSession,

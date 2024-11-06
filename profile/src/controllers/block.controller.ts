@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { BlockModel } from "../models/block.model";
 import createHttpError from "http-errors";
+import { blockUser } from "../services/block.service";
 
 export const handleGetBlockedUsers: RequestHandler = async (req, res) => {
     const userId: string = req.currentUser!.userId;
@@ -20,7 +21,7 @@ export const handleBlockUser: RequestHandler = async (req, res) => {
         throw new createHttpError.BadRequest("You can't block yourself.")
     }
 
-    await BlockModel.create({ userId, blockedUserId });
+    await blockUser(userId, blockedUserId);
 
     res
         .status(204)
