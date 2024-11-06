@@ -1,26 +1,9 @@
 import { transactionHandler } from "@ig-clone/common"
 import { BlockModel } from "../models/block.model"
 import { FollowModel } from "../models/follow.model";
-import { updateFollowInfo } from "./follow.service";
-import { ProfileModel } from "../models/profile.model";
+import { removeRelationship, unfollow } from "./follow.service";
 import createHttpError from "http-errors";
 import { ClientSession } from "mongoose";
-
-const findAndUpdateFollow = async (userId: string, blockedUserId: string, session: ClientSession): Promise<void> => {
-    const followsToDelete = await FollowModel.find(
-        {
-            $or: [
-                { userId, followingUserId: blockedUserId },
-                { userId: blockedUserId, followingUserId: userId }
-            ]
-        },
-        undefined,
-        { session }
-    );
-
-    const follow = followsToDelete[0];
-    await updateFollowInfo(follow.userId, follow.followingUserId, session, -1);
-}
 
 export const blockUser = async (userId: string, blockedUserId: string): Promise<void> => {
     transactionHandler(async session => {
@@ -29,38 +12,24 @@ export const blockUser = async (userId: string, blockedUserId: string): Promise<
             { session }
         );
 
-        const deleteResult = await FollowModel.deleteMany(
+        const followsToDelete = await FollowModel.find(
             {
                 $or: [
                     { userId, followingUserId: blockedUserId },
                     { userId: blockedUserId, followingUserId: userId }
                 ]
             },
+            undefined,
             { session }
         );
 
-        if (deleteResult.deletedCount == 1) {
-            await findAndUpdateFollow(userId, blockedUserId, session);
-        }
-        else {
-            const updateResult = await ProfileModel.bulkWrite([
-                {
-                    updateOne: {
-                        filter: { userId },
-                        update: { $inc: { followers: -1, following: -1 } }
-                    }
-                },
-                {
-                    updateOne: {
-                        filter: { userId: blockedUserId },
-                        update: { $inc: { followers: -1, following: -1 } }
-                    }
-                }
-            ], { session });
+        const firstFollow = followsToDelete[0];
 
-            if (updateResult.modifiedCount != 2) {
-                throw new createHttpError.NotFound("Profile not found.");
-            }
+        if (followsToDelete.length == 1) {
+            await unfollow(firstFollow.userId, firstFollow.followingUserId);
+        }
+        else if (followsToDelete.length == 2) {
+            await removeRelationship(firstFollow.userId, firstFollow.followingUserId);
         }
     });
 }

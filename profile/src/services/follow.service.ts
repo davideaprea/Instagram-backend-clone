@@ -7,7 +7,7 @@ import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
 import { areUsersBlocked } from "./block.service";
 
-export const updateFollowInfo = async (
+const updateFollowInfo = async (
     userId: string | ObjectId,
     followingUserId: string | ObjectId,
     session: ClientSession,
@@ -36,7 +36,7 @@ export const updateFollowInfo = async (
 const follow = async (userId: string, followingUserId: string): Promise<void> => {
     transactionHandler(async session => {
         await updateFollowInfo(userId, followingUserId, session);
-        
+
         await FollowModel.create(
             { userId, followingUserId, isAccepted: true },
             { session }
@@ -65,7 +65,7 @@ export const addFollowOrRequest = async (userId: string, followingUserId: string
     return { isAccepted: true };
 }
 
-export const unfollow = async (userId: string, followingUserId: string): Promise<void> => {
+export const unfollow = async (userId: string | ObjectId, followingUserId: string | ObjectId): Promise<void> => {
     transactionHandler(async session => {
         const deletionResult = await FollowModel.deleteOne(
             { userId, followingUserId },
@@ -97,4 +97,41 @@ export const acceptFollow = async (id: string, currUserId: string): Promise<void
 
         await updateFollowInfo(res.userId, res.followingUserId, session);
     });
+}
+
+export const removeRelationship = async (firstUserId: string | ObjectId, secondUserId: string | ObjectId) => {
+    transactionHandler(async session => {
+        const deleteResult = await FollowModel.deleteMany(
+            {
+                $or: [
+                    { userId: firstUserId, followingUserId: secondUserId },
+                    { userId: secondUserId, followingUserId: firstUserId }
+                ]
+            },
+            { session }
+        );
+
+        if(deleteResult.deletedCount != 2) {
+            throw new createHttpError.NotFound("Profile not found.");
+        }
+
+        const updateResult = await ProfileModel.bulkWrite([
+            {
+                updateOne: {
+                    filter: { userId: firstUserId },
+                    update: { $inc: { followers: -1, following: -1 } }
+                }
+            },
+            {
+                updateOne: {
+                    filter: { userId: secondUserId },
+                    update: { $inc: { followers: -1, following: -1 } }
+                }
+            }
+        ], { session });
+
+        if (updateResult.modifiedCount != 2) {
+            throw new createHttpError.NotFound("Profile not found.");
+        }
+    })
 }
