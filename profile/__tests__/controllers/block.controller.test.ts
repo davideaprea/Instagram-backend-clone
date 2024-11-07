@@ -4,6 +4,7 @@ import { sign } from "jsonwebtoken";
 import { app } from "../../src";
 import request from "supertest";
 import { BlockModel } from "../../src/models/block.model";
+import { FollowModel } from "../../src/models/follow.model";
 
 let token: string;
 let newUserToken: string;
@@ -58,9 +59,11 @@ describe("POST /blocks", () => {
             .set("Authorization", `Bearer ${newUserToken}`);
 
         const block = await BlockModel.findOne({ userId: newUserId, blockedUserId: currUserId });
+        const follow: number = await FollowModel.countDocuments();
         const userBlockCreator = (await ProfileModel.findOne({ userId: newUserId }))!
         const blockedUser = (await ProfileModel.findOne({ userId: currUserId }))!;
 
+        expect(follow).toBe(0);
         expect(blockRes.status).toBe(204);
         expect(block).toBeDefined();
         expect(blockedUser.following).toBe(0);
