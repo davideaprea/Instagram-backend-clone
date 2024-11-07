@@ -6,9 +6,9 @@ import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
 
 export const blockUser = async (userId: string, blockedUserId: string): Promise<void> => {
-    transactionHandler(async session => {
+    await transactionHandler(async session => {
         await BlockModel.create(
-            { userId, blockedUserId },
+            [{ userId, blockedUserId }],
             { session }
         );
 

@@ -38,11 +38,11 @@ const updateFollowInfo = async (
 const follow = async (ids: FollowIds): Promise<void> => {
     const { userId, followingUserId } = ids;
 
-    transactionHandler(async session => {
+    await transactionHandler(async session => {
         await updateFollowInfo(ids, session);
 
         await FollowModel.create(
-            { userId, followingUserId, isAccepted: true },
+            [{ userId, followingUserId, isAccepted: true }],
             { session }
         );
     });
@@ -89,7 +89,7 @@ export const unfollow = async (ids: FollowIds, session: ClientSession): Promise<
 export const acceptFollow = async (ids: FollowIds): Promise<void> => {
     const { userId, followingUserId } = ids;
 
-    transactionHandler(async session => {
+    await transactionHandler(async session => {
         const res = await FollowModel.findOneAndUpdate(
             {
                 userId,
@@ -143,5 +143,5 @@ export const removeRelationship = async (firstUserId: string | ObjectId, secondU
 }
 
 export const transUnfollow = async (ids: FollowIds) => {
-    transactionHandler(async session => unfollow(ids, session));
+    await transactionHandler(async session => unfollow(ids, session));
 }

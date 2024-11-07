@@ -3,6 +3,7 @@ import { ProfileModel } from "../../src/models/profile.model";
 import { sign } from "jsonwebtoken";
 import request from "supertest";
 import { app } from "../../src";
+import { BlockModel } from "../../src/models/block.model";
 
 let currUserId: Schema.Types.ObjectId;
 let queriedUserId: Schema.Types.ObjectId;

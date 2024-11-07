@@ -1,10 +1,10 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import { connect, connection, disconnect } from 'mongoose';
 
-let mongoServer: MongoMemoryServer;
+let mongoServer: MongoMemoryReplSet;
 
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryReplSet.create();
     const mongoUri = mongoServer.getUri();
     await connect(mongoUri);
 
@@ -14,7 +14,7 @@ beforeAll(async () => {
 beforeEach(async () => {
     const collections = await connection.db?.collections() || [];
 
-    for(const coll of collections) {
+    for (const coll of collections) {
         await coll.deleteMany({});
     }
 });
