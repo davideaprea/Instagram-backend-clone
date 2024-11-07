@@ -41,9 +41,6 @@ describe("POST /blocks", () => {
             .get("/blocks")
             .set("Authorization", `Bearer ${token}`);
 
-        console.log(currUserId, newUserId);
-        console.log(await BlockModel.find())
-
         expect(blockRes.status).toBe(204);
         expect(blockedUsersRes.status).toBe(200);
         expect(blockedUsersRes.body).toHaveLength(1);
@@ -53,6 +50,31 @@ describe("POST /blocks", () => {
         await request(app)
             .post("/follows/" + newUserId)
             .set("Authorization", `Bearer ${token}`);
+
+        const blockRes = await request(app)
+            .post("/blocks/" + currUserId)
+            .set("Authorization", `Bearer ${newUserToken}`);
+
+        const block = await BlockModel.findOne({ userId: newUserId, blockedUserId: currUserId });
+        const follow: number = await FollowModel.countDocuments();
+        const userBlockCreator = (await ProfileModel.findOne({ userId: newUserId }))!
+        const blockedUser = (await ProfileModel.findOne({ userId: currUserId }))!;
+
+        expect(follow).toBe(0);
+        expect(blockRes.status).toBe(204);
+        expect(block).toBeDefined();
+        expect(blockedUser.following).toBe(0);
+        expect(userBlockCreator.followers).toBe(0);
+    });
+
+    it("should block a user and remove each others follow", async () => {
+        await request(app)
+            .post("/follows/" + newUserId)
+            .set("Authorization", `Bearer ${token}`);
+
+        await request(app)
+            .post("/follows/" + currUserId)
+            .set("Authorization", `Bearer ${newUserToken}`);
 
         const blockRes = await request(app)
             .post("/blocks/" + currUserId)
