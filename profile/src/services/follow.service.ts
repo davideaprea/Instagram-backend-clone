@@ -75,7 +75,7 @@ export const unfollow = async (ids: FollowIds, session: ClientSession): Promise<
     const { userId, followingUserId } = ids;
 
     const deletionResult = await FollowModel.deleteOne(
-        { userId, followingUserId },
+        { userId, followingUserId, isAccepted: true },
         { session }
     );
 

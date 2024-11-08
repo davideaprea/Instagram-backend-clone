@@ -29,7 +29,7 @@ beforeEach(async () => {
     queriedUserToken = sign({ userId: queriedUserId }, process.env.JWT_SECRET!);
 });
 
-describe.skip("GET /users/:username", () => {
+describe("GET /users/:username", () => {
     it("should retrieve the user", async () => {
         const res = await request(app)
             .get("/users/username2")

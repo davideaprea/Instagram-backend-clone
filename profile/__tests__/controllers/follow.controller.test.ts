@@ -36,7 +36,7 @@ beforeEach(async () => {
     joeToken = sign({ userId: joeId }, process.env.JWT_SECRET!)
 });
 
-describe.skip("POST /follows/:userId", () => {
+describe("POST /follows/:userId", () => {
     it("should follow a user", async () => {
         const res = await request(app)
             .post("/follows/" + joeId)
@@ -119,4 +119,35 @@ describe("PATCH /follows/:userId", () => {
         expect(joeProfile!.followers).toBe(1);
         expect(daveProfile!.following).toBe(1);
     });
+});
+
+describe("DELETE /follows/:userId", () => {
+    it("should unfollow a user", async () => {
+        await request(app)
+            .post("/follows/" + joeId)
+            .set("Authorization", `Bearer ${daveToken}`);
+
+        const res = await request(app)
+            .delete("/follows/" + joeId)
+            .set("Authorization", `Bearer ${daveToken}`);
+
+        const follows: number = await FollowModel.countDocuments();
+
+        expect(res.status).toBe(204);
+        expect(follows).toBe(0);
+    });
+
+    it("should return 404 because the follow is still a request", async () => {
+        await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
+
+        await request(app)
+            .post("/follows/" + joeId)
+            .set("Authorization", `Bearer ${daveToken}`);
+
+        const res = await request(app)
+            .delete("/follows/" + joeId)
+            .set("Authorization", `Bearer ${daveToken}`);
+
+        expect(res.status).toBe(404);
+    })
 });

@@ -31,7 +31,7 @@ beforeEach(async () => {
     newUserToken = sign({ userId: newUserId }, process.env.JWT_SECRET!)
 });
 
-describe.skip("POST /blocks", () => {
+describe("POST /blocks", () => {
     it("should block a user", async () => {
         const blockRes = await request(app)
             .post("/blocks/" + newUserId.toString())
@@ -101,7 +101,7 @@ describe.skip("POST /blocks", () => {
     });
 });
 
-describe.skip("DELETE /blocks", () => {
+describe("DELETE /blocks", () => {
     it("should unblock a user", async () => {
         await request(app)
             .post("/blocks/" + newUserId)
