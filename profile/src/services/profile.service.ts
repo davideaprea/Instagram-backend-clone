@@ -1,10 +1,11 @@
 import createHttpError from "http-errors";
 import { ProfileModel } from "../models/profile.model";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
-import { Profile } from "@ig-clone/common";
+import { Profile, transactionHandler } from "@ig-clone/common";
 import { ObjectId, Types } from "mongoose";
 import { InteractionRuleModel } from "../models/interaction-rule.model";
 import { ProfileInteractionRules } from "../types/custom-types/profile-interaction-rules.type";
+import { ProfileDto } from "../types/custom-types/profile-dto.type";
 
 /**
 * Finds a profile by its username, checking if
@@ -116,4 +117,22 @@ export const getProfileRules = async (userId: string | ObjectId): Promise<Profil
     }
 
     return rules;
+}
+
+export const createProfile = async (dto: ProfileDto) => {
+    await transactionHandler(async session => {
+        const {userId, fullName, username} = dto;
+
+        await ProfileModel.create(
+            [{
+                userId,
+                fullName,
+                username
+            }],
+            { session });
+        await InteractionRuleModel.create(
+            [{ userId }],
+            { session }
+        );
+    });
 }
