@@ -7,6 +7,7 @@ import express, { Express, json } from 'express';
 import { handleError, verifyJwt } from '@ig-clone/common';
 import { profileRouter } from './routes/profile.router';
 import { blockRouter } from './routes/block.router';
+import { followRouter } from './routes/follow.router';
 
 export const app: Express = express();
 
@@ -16,5 +17,6 @@ app.use(verifyJwt);
 
 app.use(profileRouter);
 app.use(blockRouter);
+app.use(followRouter)
 
 app.use(handleError);

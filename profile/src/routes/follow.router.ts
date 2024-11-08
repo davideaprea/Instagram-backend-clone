@@ -4,10 +4,7 @@ import { handleAcceptFollow, handleFollow, handleUnfollow } from "../controllers
 export const followRouter: Router = Router();
 
 followRouter
-.route("/follows/:followingUserId")
-.post(handleFollow)
-.delete(handleUnfollow);
-
-followRouter
 .route("/follows/:userId")
+.post(handleFollow)
+.delete(handleUnfollow)
 .patch(handleAcceptFollow);
