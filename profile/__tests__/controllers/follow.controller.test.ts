@@ -2,7 +2,7 @@ import { Schema, Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
 import { sign } from "jsonwebtoken";
 import request from "supertest";
-import { app } from "../../src";
+import { app, baseRoute } from "../../src";
 import { FollowModel } from "../../src/models/follow.model";
 import { InteractionRuleModel } from "../../src/models/interaction-rule.model";
 import { BlockModel } from "../../src/models/block.model";
@@ -36,10 +36,10 @@ beforeEach(async () => {
     joeToken = sign({ userId: joeId }, process.env.JWT_SECRET!)
 });
 
-describe("POST /follows/:userId", () => {
+describe(`POST ${baseRoute}/follows/:userId`, () => {
     it("should follow a user", async () => {
         const res = await request(app)
-            .post("/follows/" + joeId)
+            .post(baseRoute + "/follows/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         const follow = await FollowModel.findOne({
@@ -60,7 +60,7 @@ describe("POST /follows/:userId", () => {
         await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
 
         const res = await request(app)
-            .post("/follows/" + joeId)
+            .post(baseRoute + "/follows/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         const follow = await FollowModel.findOne({
@@ -81,7 +81,7 @@ describe("POST /follows/:userId", () => {
         await BlockModel.create({ userId: joeId, blockedUserId: daveId });
 
         const res = await request(app)
-            .post("/follows/" + joeId)
+            .post(baseRoute + "/follows/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         const follows: number = await FollowModel.countDocuments();
@@ -93,16 +93,16 @@ describe("POST /follows/:userId", () => {
     });
 });
 
-describe("PATCH /follows/:userId", () => {
+describe(`PATCH ${baseRoute}/follows/:userId`, () => {
     it("should accept a follow request", async () => {
         await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
 
         await request(app)
-            .post("/follows/" + joeId)
+            .post(baseRoute + "/follows/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         const res = await request(app)
-            .patch("/follows/" + daveId)
+            .patch(baseRoute + "/follows/" + daveId)
             .set("Authorization", `Bearer ${joeToken}`);
 
         const follow = await FollowModel.findOne({
@@ -121,14 +121,14 @@ describe("PATCH /follows/:userId", () => {
     });
 });
 
-describe("DELETE /follows/:userId", () => {
+describe(`DELETE ${baseRoute}/follows/:userId`, () => {
     it("should unfollow a user", async () => {
         await request(app)
-            .post("/follows/" + joeId)
+            .post(baseRoute + "/follows/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         const res = await request(app)
-            .delete("/follows/" + joeId)
+            .delete(baseRoute + "/follows/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         const follows: number = await FollowModel.countDocuments();
@@ -141,11 +141,11 @@ describe("DELETE /follows/:userId", () => {
         await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
 
         await request(app)
-            .post("/follows/" + joeId)
+            .post(baseRoute + "/follows/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         const res = await request(app)
-            .delete("/follows/" + joeId)
+            .delete(baseRoute + "/follows/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         expect(res.status).toBe(404);

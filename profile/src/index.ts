@@ -11,12 +11,14 @@ import { followRouter } from './routes/follow.router';
 
 export const app: Express = express();
 
+export const baseRoute: string = "/v1/profile";
+
 app.use(json());
 
 app.use(verifyJwt);
 
-app.use(profileRouter);
-app.use(blockRouter);
-app.use(followRouter)
+app.use(baseRoute, profileRouter);
+app.use(baseRoute, blockRouter);
+app.use(baseRoute, followRouter)
 
 app.use(handleError);
