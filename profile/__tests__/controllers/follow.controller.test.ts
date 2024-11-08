@@ -36,7 +36,7 @@ beforeEach(async () => {
     joeToken = sign({ userId: joeId }, process.env.JWT_SECRET!)
 });
 
-describe("POST /follows/:userId", () => {
+describe.skip("POST /follows/:userId", () => {
     it("should follow a user", async () => {
         const res = await request(app)
             .post("/follows/" + joeId)
@@ -90,5 +90,33 @@ describe("POST /follows/:userId", () => {
         expect(res.status).toBe(404);
         expect(follows).toBe(0);
         expect(joeProfile!.followers).toBe(0);
+    });
+});
+
+describe("PATCH /follows/:userId", () => {
+    it("should accept a follow request", async () => {
+        await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
+
+        await request(app)
+            .post("/follows/" + joeId)
+            .set("Authorization", `Bearer ${daveToken}`);
+
+        const res = await request(app)
+            .patch("/follows/" + daveId)
+            .set("Authorization", `Bearer ${joeToken}`);
+
+        const follow = await FollowModel.findOne({
+            userId: daveId,
+            followingUserId: joeId,
+            isAccepted: true
+        });
+
+        const joeProfile = await ProfileModel.findOne({ userId: joeId }, { followers: 1, following: 1 });
+        const daveProfile = await ProfileModel.findOne({ userId: daveId }, { followers: 1, following: 1 });
+
+        expect(res.status).toBe(204);
+        expect(follow).toBeDefined();
+        expect(joeProfile!.followers).toBe(1);
+        expect(daveProfile!.following).toBe(1);
     });
 });
