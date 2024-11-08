@@ -5,7 +5,7 @@ import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
 import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
 
 const interactionRuleSchema = new Schema<ProfileInteractionRules, Model<ProfileInteractionRules>>({
-    profileId: {
+    userId: {
         type: Types.ObjectId,
         required: [true, "Profile id is required."],
         immutable: true,

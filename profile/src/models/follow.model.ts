@@ -1,5 +1,4 @@
 import { model, Model, Schema, Types } from "mongoose";
-import { FollowRequestStatus } from "../types/enums/follow-request-status.enum";
 import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
 import { Follow } from "../types/custom-types/follow.type";
 
@@ -14,17 +13,16 @@ const followSchema = new Schema<Follow, Model<Follow>>({
         required: [true, "Following user id is required."],
         immutable: true
     },
-    status: {
-        type: String,
-        enum: Object.values(FollowRequestStatus),
-        required: true,
-        default: FollowRequestStatus.PENDING
-    },
     time: {
         type: Number,
         immutable: true,
         required: true,
         default: Date.now()
+    },
+    isAccepted: {
+        type: Boolean,
+        required: true,
+        default: true
     }
 });
 

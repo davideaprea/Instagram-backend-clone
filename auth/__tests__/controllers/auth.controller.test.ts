@@ -1,10 +1,10 @@
 import request from "supertest";
-import { app } from "../../src";
+import { app, baseRoute } from "../../src";
 
-describe("POST /register", () => {
+describe(`POST ${baseRoute}/register`, () => {
     it("registers a new user and returns just its username and full name, with a status of 201", async () => {
         const res = await request(app)
-            .post("/register")
+            .post(baseRoute + "/register")
             .send({
                 username: "username",
                 email: "email@gmail.com",
@@ -21,7 +21,7 @@ describe("POST /register", () => {
 
     it("should return a 400 status with every validation message", async () => {
         const res = await request(app)
-            .post("/register")
+            .post(baseRoute + "/register")
             .send({
                 username: "!^a",
                 email: "emaimail.com",
@@ -42,7 +42,7 @@ describe("POST /register", () => {
 
     it("should return 400 with error message for duplicate email", async () => {
         await request(app)
-            .post("/register")
+            .post(baseRoute + "/register")
             .send({
                 username: "username",
                 email: "email@gmail.com",
@@ -51,7 +51,7 @@ describe("POST /register", () => {
             });
 
         const res = await request(app)
-            .post("/register")
+            .post(baseRoute + "/register")
             .send({
                 username: "username",
                 email: "email@gmail.com",
@@ -69,7 +69,7 @@ describe("POST /register", () => {
 
     it("should return 400 with error message for duplicate username", async () => {
         await request(app)
-            .post("/register")
+            .post(baseRoute + "/register")
             .send({
                 username: "username",
                 email: "email@gmail.com",
@@ -78,7 +78,7 @@ describe("POST /register", () => {
             });
 
         const res = await request(app)
-            .post("/register")
+            .post(baseRoute + "/register")
             .send({
                 username: "username",
                 email: "emaizl@gmail.com",
@@ -95,10 +95,10 @@ describe("POST /register", () => {
     });
 });
 
-describe("POST /login", () => {
+describe(`POST ${baseRoute}/login`, () => {
     it("should log in the user", async () => {
         await request(app)
-            .post("/register")
+            .post(baseRoute + "/register")
             .send({
                 username: "usrnm21",
                 email: "myemail@gmail.com",
@@ -107,7 +107,7 @@ describe("POST /login", () => {
             });
 
         const res = await request(app)
-            .post("/login")
+            .post(baseRoute + "/login")
             .send({
                 email: "myemail@gmail.com",
                 password: "Password%2024"
@@ -124,7 +124,7 @@ describe("POST /login", () => {
 
     it("should return a 400 status with credentials not found message", async () => {
         const res = await request(app)
-            .post("/login")
+            .post(baseRoute + "/login")
             .send({
                 email: "myemail@gmail.com",
                 password: "Password%2024"

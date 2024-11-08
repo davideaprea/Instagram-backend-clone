@@ -2,7 +2,7 @@ import { Schema, Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
 import { sign } from "jsonwebtoken";
 import request from "supertest";
-import { app } from "../../src";
+import { app, baseRoute } from "../../src";
 
 let currUserId: Schema.Types.ObjectId;
 let queriedUserId: Schema.Types.ObjectId;
@@ -29,10 +29,10 @@ beforeEach(async () => {
     queriedUserToken = sign({ userId: queriedUserId }, process.env.JWT_SECRET!);
 });
 
-describe("GET /users/:username", () => {
+describe(`GET ${baseRoute}/users/:username`, () => {
     it("should retrieve the user", async () => {
         const res = await request(app)
-            .get("/users/username2")
+            .get(baseRoute + "/users/username2")
             .set("Authorization", `Bearer ${currUserToken}`);
         
         expect(res.status).toBe(200);
@@ -40,11 +40,11 @@ describe("GET /users/:username", () => {
 
     it("should't retrieve the user because the queried user has blocked the profile making the request", async () => {
         await request(app)
-            .post("/blocks/" + currUserId.toString())
+            .post(baseRoute + "/blocks/" + currUserId.toString())
             .set("Authorization", `Bearer ${queriedUserToken}`);
 
         const res = await request(app)
-            .get("/users/username2")
+            .get(baseRoute + "/users/username2")
             .set("Authorization", `Bearer ${currUserToken}`);
 
         expect(res.status).toBe(404);

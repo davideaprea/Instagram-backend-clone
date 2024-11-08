@@ -2,7 +2,9 @@ import createHttpError from "http-errors";
 import { ProfileModel } from "../models/profile.model";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
 import { Profile } from "@ig-clone/common";
-import { Types } from "mongoose";
+import { ObjectId, Types } from "mongoose";
+import { InteractionRuleModel } from "../models/interaction-rule.model";
+import { ProfileInteractionRules } from "../types/custom-types/profile-interaction-rules.type";
 
 /**
 * Finds a profile by its username, checking if
@@ -94,4 +96,24 @@ export const getProfilePage = async (currUserId: Types.ObjectId, pattern: string
             },
             { $limit: limit }
         ]);
+}
+
+export const getProfileById = async (id: ObjectId): Promise<Profile> => {
+    const profile = await ProfileModel.findById(id);
+
+    if (!profile) {
+        throw new createHttpError.NotFound("Profile not found.");
+    }
+
+    return profile;
+}
+
+export const getProfileRules = async (userId: string | ObjectId): Promise<ProfileInteractionRules> => {
+    const rules = await InteractionRuleModel.findOne({ userId });
+
+    if (!rules) {
+        throw new createHttpError.NotFound("Profile not found.");
+    }
+
+    return rules;
 }

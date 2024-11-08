@@ -9,8 +9,10 @@ import { handleError } from '@ig-clone/common';
 
 export const app: Express = express();
 
+export const baseRoute: string = "/v1/auth";
+
 app.use(json());
 
-app.use("/", authRouter);
+app.use(baseRoute, authRouter);
 
 app.use(handleError);

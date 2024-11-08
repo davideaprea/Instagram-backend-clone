@@ -3,7 +3,7 @@ import { InteractionRule } from "../enums/interaction-rule.enum";
 import { ProfileVisibility } from "../enums/profile-visibility.enum";
 
 export type ProfileInteractionRules = {
-    readonly profileId: ObjectId
+    readonly userId: ObjectId
     tag: InteractionRule,
     mention: InteractionRule
     visibility: ProfileVisibility
