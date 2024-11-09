@@ -15,6 +15,13 @@ spec:
       containers:
         - name: profile-mongo
           image: mongo
+          command:
+            - mongod
+            - "--bind_ip_all"
+            - "--replSet"
+            - "rs0"
+            #after pod initialization, use rs.initiate() to
+            #start the replicaSet in the pod mongosh terminal
 ---
 apiVersion: v1
 kind: Service
