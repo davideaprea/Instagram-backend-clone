@@ -21,6 +21,16 @@ spec:
                 secretKeyRef:
                   name: jwt-secret
                   key: JWT_SECRET
+            - name: LOCAL_DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: profile-mongo-config-map
+                  key: url
+            - name: LOCAL_KAFKA_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-config-map
+                  key: url
 ---
 apiVersion: v1
 kind: Service
