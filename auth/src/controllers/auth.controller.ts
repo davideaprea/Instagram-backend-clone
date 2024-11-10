@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { AuthResponse } from "../types/auth-response.type";
 import { login, register } from "../services/auth.service";
 import { LoginResponse } from "../types/login-response.type";
-import { authProducer } from "../configs/auth.producer";
+import { authProducer } from "../producers/auth.producer";
 import { AuthTopics } from "@ig-clone/common";
 
 export const handleRegistration: RequestHandler = async (req, res): Promise<void> => {

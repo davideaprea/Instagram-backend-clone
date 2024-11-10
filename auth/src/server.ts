@@ -2,7 +2,7 @@ import { connect } from "mongoose";
 import { app } from ".";
 import { AuthTopics } from "@ig-clone/common";
 import { kafka } from "./configs/kafka.config";
-import { authProducer } from "./configs/auth.producer";
+import { authProducer } from "./producers/auth.producer";
 
 const init = async (): Promise<void> => {
     try {
