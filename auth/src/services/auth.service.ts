@@ -14,13 +14,13 @@ export const register = async (registerDto: User): Promise<AuthResponse> => {
 
     const err: Error.ValidationError | null = user.validateSync();
 
-    if(err) throw err;
+    if (err) throw err;
 
     user.password = hashSync(user.password, 12);
 
-    const { username, fullName, _id } = await user.save({validateBeforeSave: false});
+    const { username, fullName, id } = await user.save({ validateBeforeSave: false });
 
-    return { username, fullName, id: _id};
+    return { username, fullName, id };
 }
 
 export const login = async (loginDto: LoginDto): Promise<LoginResponse> => {

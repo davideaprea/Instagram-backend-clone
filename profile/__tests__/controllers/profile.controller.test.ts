@@ -1,29 +1,27 @@
-import { Schema, Types } from "mongoose";
+import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
 import { sign } from "jsonwebtoken";
 import request from "supertest";
 import { app, baseRoute } from "../../src";
 
-let currUserId: Schema.Types.ObjectId;
-let queriedUserId: Schema.Types.ObjectId;
+let currUserId: Types.ObjectId;
+let queriedUserId: Types.ObjectId;
 let currUserToken: string;
 let queriedUserToken: string;
 
 beforeEach(async () => {
     const currUser = await ProfileModel.create({
         username: "username",
-        fullName: "full name",
-        userId: new Types.ObjectId()
+        fullName: "full name"
     });
 
     const queriedUser = await ProfileModel.create({
         username: "username2",
-        fullName: "new full name",
-        userId: new Types.ObjectId()
+        fullName: "new full name"
     });
 
-    currUserId = currUser.userId;
-    queriedUserId = queriedUser.userId;
+    currUserId = currUser._id;
+    queriedUserId = queriedUser._id;
 
     currUserToken = sign({ userId: currUserId }, process.env.JWT_SECRET!);
     queriedUserToken = sign({ userId: queriedUserId }, process.env.JWT_SECRET!);

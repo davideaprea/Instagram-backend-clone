@@ -1,4 +1,4 @@
-import { Schema, Types } from "mongoose";
+import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
 import { sign } from "jsonwebtoken";
 import request from "supertest";
@@ -10,24 +10,22 @@ import { ProfileVisibility } from "../../src/types/enums/profile-visibility.enum
 
 let daveToken: string;
 let joeToken: string;
-let daveId: Schema.Types.ObjectId;
-let joeId: Schema.Types.ObjectId;
+let daveId: Types.ObjectId;
+let joeId: Types.ObjectId;
 
 beforeEach(async () => {
     const daveUser = await ProfileModel.create({
         username: "dave01",
-        fullName: "Dave",
-        userId: new Types.ObjectId()
+        fullName: "Dave"
     });
 
     const joeUser = await ProfileModel.create({
         username: "joe98",
-        fullName: "Joe",
-        userId: new Types.ObjectId()
+        fullName: "Joe"
     });
 
-    daveId = daveUser.userId;
-    joeId = joeUser.userId;
+    daveId = daveUser._id;
+    joeId = joeUser._id;
 
     await InteractionRuleModel.create({ userId: joeId });
     await InteractionRuleModel.create({ userId: daveId });
@@ -48,7 +46,7 @@ describe(`POST ${baseRoute}/follows/:userId`, () => {
             isAccepted: true
         });
         const follows: number = await FollowModel.countDocuments();
-        const joeProfile = await ProfileModel.findOne({ userId: joeId }, { followers: 1 });
+        const joeProfile = await ProfileModel.findOne({ _id: joeId }, { followers: 1 });
 
         expect(res.status).toBe(200);
         expect(follow).toBeDefined();
@@ -69,7 +67,7 @@ describe(`POST ${baseRoute}/follows/:userId`, () => {
             isAccepted: false
         });
         const follows: number = await FollowModel.countDocuments();
-        const joeProfile = await ProfileModel.findOne({ userId: joeId }, { followers: 1 });
+        const joeProfile = await ProfileModel.findOne({ _id: joeId }, { followers: 1 });
 
         expect(res.status).toBe(200);
         expect(follow).toBeDefined();
@@ -85,7 +83,7 @@ describe(`POST ${baseRoute}/follows/:userId`, () => {
             .set("Authorization", `Bearer ${daveToken}`);
 
         const follows: number = await FollowModel.countDocuments();
-        const joeProfile = await ProfileModel.findOne({ userId: joeId }, { followers: 1 });
+        const joeProfile = await ProfileModel.findOne({ _id: joeId }, { followers: 1 });
 
         expect(res.status).toBe(404);
         expect(follows).toBe(0);
@@ -111,8 +109,8 @@ describe(`PATCH ${baseRoute}/follows/:userId`, () => {
             isAccepted: true
         });
 
-        const joeProfile = await ProfileModel.findOne({ userId: joeId }, { followers: 1, following: 1 });
-        const daveProfile = await ProfileModel.findOne({ userId: daveId }, { followers: 1, following: 1 });
+        const joeProfile = await ProfileModel.findOne({ _id: joeId }, { followers: 1, following: 1 });
+        const daveProfile = await ProfileModel.findOne({ _id: daveId }, { followers: 1, following: 1 });
 
         expect(res.status).toBe(204);
         expect(follow).toBeDefined();

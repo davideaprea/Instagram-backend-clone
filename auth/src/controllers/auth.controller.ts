@@ -10,11 +10,7 @@ export const handleRegistration: RequestHandler = async (req, res): Promise<void
 
     await authProducer.send({
         topic: AuthTopics.USER_CREATE,
-        messages: [{ value: JSON.stringify({
-            userId: authRes.id,
-            fullName: authRes.fullName,
-            username: authRes.username
-        }) }]
+        messages: [{ value: JSON.stringify(authRes) }]
     });
 
     res

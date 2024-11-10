@@ -1,3 +1,3 @@
-import { Profile } from "@ig-clone/common";
+import { ProfileDocument } from "./profile-document.type";
 
-export type ProfileDto = Pick<Profile, "userId" | "username" | "fullName">;
+export type ProfileDto = Pick<ProfileDocument, "username" | "fullName" | "id">;

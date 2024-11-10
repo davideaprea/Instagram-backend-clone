@@ -3,12 +3,6 @@ import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
 import { Gender, Profile } from "@ig-clone/common";
 
 const profileSchema = new Schema<Profile, Model<Profile>>({
-    userId: {
-        type: Types.ObjectId,
-        required: [true, "User id is required."],
-        immutable: true,
-        unique: true
-    },
     followers: {
         type: Number,
         default: 0,

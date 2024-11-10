@@ -1,4 +1,4 @@
-import { Schema, Types } from "mongoose";
+import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
 import { sign } from "jsonwebtoken";
 import { app, baseRoute } from "../../src";
@@ -8,24 +8,22 @@ import { FollowModel } from "../../src/models/follow.model";
 
 let token: string;
 let newUserToken: string;
-let currUserId: Schema.Types.ObjectId;
-let newUserId: Schema.Types.ObjectId;
+let currUserId: Types.ObjectId;
+let newUserId: Types.ObjectId;
 
 beforeEach(async () => {
     const currUser = await ProfileModel.create({
         username: "username",
-        fullName: "full name",
-        userId: new Types.ObjectId()
+        fullName: "full name"
     });
 
     const newUser = await ProfileModel.create({
         username: "username2",
-        fullName: "new full name",
-        userId: new Types.ObjectId()
+        fullName: "new full name"
     });
 
-    currUserId = currUser.userId;
-    newUserId = newUser.userId;
+    currUserId = currUser._id;
+    newUserId = newUser._id;
 
     token = sign({ userId: currUserId }, process.env.JWT_SECRET!);
     newUserToken = sign({ userId: newUserId }, process.env.JWT_SECRET!)
@@ -57,8 +55,8 @@ describe(`POST ${baseRoute}/blocks`, () => {
 
         const block = await BlockModel.findOne({ userId: newUserId, blockedUserId: currUserId });
         const follow: number = await FollowModel.countDocuments();
-        const userBlockCreator = (await ProfileModel.findOne({ userId: newUserId }))!
-        const blockedUser = (await ProfileModel.findOne({ userId: currUserId }))!;
+        const userBlockCreator = (await ProfileModel.findOne({ _id: newUserId }))!
+        const blockedUser = (await ProfileModel.findOne({ _id: currUserId }))!;
 
         expect(follow).toBe(0);
         expect(blockRes.status).toBe(204);
@@ -82,8 +80,8 @@ describe(`POST ${baseRoute}/blocks`, () => {
 
         const block = await BlockModel.findOne({ userId: newUserId, blockedUserId: currUserId });
         const follow: number = await FollowModel.countDocuments();
-        const userBlockCreator = (await ProfileModel.findOne({ userId: newUserId }))!
-        const blockedUser = (await ProfileModel.findOne({ userId: currUserId }))!;
+        const userBlockCreator = (await ProfileModel.findOne({ _id: newUserId }))!
+        const blockedUser = (await ProfileModel.findOne({ _id: currUserId }))!;
 
         expect(follow).toBe(0);
         expect(blockRes.status).toBe(204);

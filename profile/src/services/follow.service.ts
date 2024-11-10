@@ -18,13 +18,13 @@ const updateFollowInfo = async (
     const updateResult = await ProfileModel.bulkWrite([
         {
             updateOne: {
-                filter: { userId },
+                filter: { _id: userId },
                 update: { $inc: { following: 1 * multiplier } }
             }
         },
         {
             updateOne: {
-                filter: { userId: followingUserId },
+                filter: { _id: followingUserId },
                 update: { $inc: { followers: 1 * multiplier } }
             }
         }
@@ -125,13 +125,13 @@ export const removeRelationship = async (firstUserId: string | ObjectId, secondU
     const updateResult = await ProfileModel.bulkWrite([
         {
             updateOne: {
-                filter: { userId: firstUserId },
+                filter: { _id: firstUserId },
                 update: { $inc: { followers: -1, following: -1 } }
             }
         },
         {
             updateOne: {
-                filter: { userId: secondUserId },
+                filter: { _id: secondUserId },
                 update: { $inc: { followers: -1, following: -1 } }
             }
         }

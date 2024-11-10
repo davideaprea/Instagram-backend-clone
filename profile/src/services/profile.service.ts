@@ -20,7 +20,7 @@ export const getProfileByUsername = async (currUserId: Types.ObjectId, username:
         {
             $lookup: {
                 from: "blocks",
-                let: { targetUserId: "$userId" },
+                let: { targetUserId: "$_id" },
                 pipeline: [
                     {
                         $match: {
@@ -69,7 +69,7 @@ export const getProfilePage = async (currUserId: Types.ObjectId, pattern: string
             {
                 $lookup: {
                     from: "blocks",
-                    let: { targetUserId: "$userId" },
+                    let: { targetUserId: "$_id" },
                     pipeline: [
                         {
                             $match: {
@@ -121,17 +121,18 @@ export const getProfileRules = async (userId: string | ObjectId): Promise<Profil
 
 export const createProfile = async (dto: ProfileDto) => {
     await transactionHandler(async session => {
-        const {userId, fullName, username} = dto;
+        const { id, fullName, username } = dto;
 
         await ProfileModel.create(
             [{
-                userId,
+                _id: id,
                 fullName,
                 username
             }],
             { session });
+
         await InteractionRuleModel.create(
-            [{ userId }],
+            [{ userId: id }],
             { session }
         );
     });
