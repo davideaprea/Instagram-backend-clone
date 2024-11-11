@@ -1,15 +1,11 @@
 import { RequestHandler } from "express";
 import { InteractionRuleModel } from "../models/interaction-rule.model";
-import createHttpError from "http-errors";
+import { getInteractionRules } from "../services/interaction-rules.service";
 
 export const handleGetInteractionRules: RequestHandler = async (req, res): Promise<void> => {
-    const userId = req.currentUser?.userId;
+    const userId = req.currentUser!.userId;
 
-    const rules = await InteractionRuleModel.findById(userId);
-
-    if (!rules) {
-        throw new createHttpError.NotFound("Profile not found.");
-    }
+    const rules = getInteractionRules(userId);
 
     res
         .status(200)

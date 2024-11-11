@@ -4,7 +4,6 @@ import { ProfileSearch } from "../types/custom-types/profile-search.type";
 import { Profile, transactionHandler } from "@ig-clone/common";
 import { ObjectId, Types } from "mongoose";
 import { InteractionRuleModel } from "../models/interaction-rule.model";
-import { ProfileInteractionRules } from "../types/custom-types/profile-interaction-rules.type";
 import { ProfileDto } from "../types/custom-types/profile-dto.type";
 
 /**
