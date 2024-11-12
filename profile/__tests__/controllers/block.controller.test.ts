@@ -1,10 +1,11 @@
 import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
-import { sign } from "jsonwebtoken";
+import { JwtPayload, sign, verify } from "jsonwebtoken";
 import { app, baseRoute } from "../../src";
 import request from "supertest";
 import { BlockModel } from "../../src/models/block.model";
 import { FollowModel } from "../../src/models/follow.model";
+import { InteractionRuleModel } from "../../src/models/interaction-rule.model";
 
 let token: string;
 let newUserToken: string;
@@ -25,8 +26,11 @@ beforeEach(async () => {
     currUserId = currUser._id;
     newUserId = newUser._id;
 
-    token = sign({ userId: currUserId }, process.env.JWT_SECRET!);
-    newUserToken = sign({ userId: newUserId }, process.env.JWT_SECRET!)
+    token = sign({ userId: currUserId.toString() }, process.env.JWT_SECRET!);
+    newUserToken = sign({ userId: newUserId.toString() }, process.env.JWT_SECRET!);
+
+    await InteractionRuleModel.create({ userId: currUser });
+    await InteractionRuleModel.create({ userId: newUserId });
 });
 
 describe(`POST ${baseRoute}/blocks`, () => {

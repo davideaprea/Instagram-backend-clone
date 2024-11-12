@@ -5,7 +5,7 @@ import { Schema } from "mongoose";
 import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
 
 export const getInteractionRules = async (userId: string | Schema.Types.ObjectId): Promise<ProfileInteractionRules> => {
-    const rules = await InteractionRuleModel.findById(userId);
+    const rules = await InteractionRuleModel.findOne({ userId });
 
     if (!rules) {
         throw new createHttpError.NotFound("Profile not found.");
