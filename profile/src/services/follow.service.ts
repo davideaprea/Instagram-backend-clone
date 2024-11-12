@@ -53,7 +53,7 @@ export const addFollowOrRequest = async (ids: FollowIds): Promise<{ isAccepted: 
 
     await areUsersBlocked(followingUserId, userId);
 
-    const profileRule = await getInteractionRules(userId);
+    const profileRule = await getInteractionRules(followingUserId);
 
     if (profileRule.visibility == ProfileVisibility.PUBLIC) {
         await follow(ids);

@@ -27,7 +27,7 @@ beforeEach(async () => {
     queriedUserToken = sign({ userId: queriedUserId }, process.env.JWT_SECRET!);
 });
 
-describe.skip(`GET ${baseRoute}/users/:username`, () => {
+describe(`GET ${baseRoute}/users/:username`, () => {
     it("should retrieve the user", async () => {
         const res = await request(app)
             .get(baseRoute + "/users/username2")

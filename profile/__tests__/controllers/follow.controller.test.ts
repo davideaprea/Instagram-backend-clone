@@ -34,7 +34,7 @@ beforeEach(async () => {
     joeToken = sign({ userId: joeId }, process.env.JWT_SECRET!)
 });
 
-describe.skip(`POST ${baseRoute}/follows/:userId`, () => {
+describe(`POST ${baseRoute}/follows/:userId`, () => {
     it("should follow a user", async () => {
         const res = await request(app)
             .post(baseRoute + "/follows/" + joeId)
@@ -91,7 +91,7 @@ describe.skip(`POST ${baseRoute}/follows/:userId`, () => {
     });
 });
 
-describe.skip(`PATCH ${baseRoute}/follows/:userId`, () => {
+describe(`PATCH ${baseRoute}/follows/:userId`, () => {
     it("should accept a follow request", async () => {
         await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
 
@@ -119,7 +119,7 @@ describe.skip(`PATCH ${baseRoute}/follows/:userId`, () => {
     });
 });
 
-describe.skip(`DELETE ${baseRoute}/follows/:userId`, () => {
+describe(`DELETE ${baseRoute}/follows/:userId`, () => {
     it("should unfollow a user", async () => {
         await request(app)
             .post(baseRoute + "/follows/" + joeId)

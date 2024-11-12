@@ -23,6 +23,4 @@ app.use(baseRoute, blockRouter);
 app.use(baseRoute, followRouter);
 app.use(baseRoute, interactionRulesRouter);
 
-app.use((err, req, res, next) => {
-    console.log("Req err", err)
-}, handleError);
+app.use(handleError);
