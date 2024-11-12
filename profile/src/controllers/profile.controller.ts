@@ -1,7 +1,9 @@
 import { RequestHandler } from "express";
-import { getProfileByUsername, getProfilePage } from "../services/profile.service";
+import { getFollowers, getFollowings, getProfileByUsername, getProfilePage } from "../services/profile.service";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
-import { Types } from "mongoose";
+import { Schema, Types } from "mongoose";
+import { areUsersBlocked } from "../services/block.service";
+import { isProfilePrivate } from "../services/interaction-rules.service";
 
 export const handleGetProfileByUsername: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
@@ -25,4 +27,38 @@ export const handleSearchProfiles: RequestHandler = async (req, res): Promise<vo
     res
         .status(200)
         .json(results);
+}
+
+export const handleGetFollowers: RequestHandler = async (req, res): Promise<void> => {
+    const userId: string = req.currentUser!.userId;
+    const profileId: string = req.params.profileId;
+    const lastId: string = req.params.lastId;
+
+    if (userId != profileId) {
+        await areUsersBlocked(userId, profileId);
+        await isProfilePrivate(profileId);
+    }
+
+    const followers = getFollowers(new Schema.Types.ObjectId(userId), lastId);
+
+    res
+        .status(200)
+        .json(followers);
+}
+
+export const handleGetFollowings: RequestHandler = async (req, res): Promise<void> => {
+    const userId: string = req.currentUser!.userId;
+    const profileId: string = req.params.profileId;
+    const lastId: string = req.params.lastId;
+
+    if (userId != profileId) {
+        await areUsersBlocked(userId, profileId);
+        await isProfilePrivate(profileId);
+    }
+
+    const followers = getFollowings(new Schema.Types.ObjectId(userId), lastId);
+
+    res
+        .status(200)
+        .json(followers);
 }

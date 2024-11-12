@@ -6,7 +6,6 @@ import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
 import { areUsersBlocked } from "./block.service";
 import { FollowIds } from "../types/custom-types/follow-ids.type";
-import { InteractionRuleModel } from "../models/interaction-rule.model";
 import { getInteractionRules } from "./interaction-rules.service";
 
 const updateFollowInfo = async (

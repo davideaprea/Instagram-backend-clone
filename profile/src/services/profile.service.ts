@@ -2,9 +2,11 @@ import createHttpError from "http-errors";
 import { ProfileModel } from "../models/profile.model";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
 import { Profile, transactionHandler } from "@ig-clone/common";
-import { ObjectId, Types } from "mongoose";
+import { FilterQuery, ObjectId, Types } from "mongoose";
 import { InteractionRuleModel } from "../models/interaction-rule.model";
 import { ProfileDto } from "../types/custom-types/profile-dto.type";
+import { FollowModel } from "../models/follow.model";
+import { Follow } from "../types/custom-types/follow.type";
 
 /**
 * Finds a profile by its username, checking if
@@ -125,4 +127,66 @@ export const createProfile = async (dto: ProfileDto) => {
             { session }
         );
     });
+}
+
+export const getFollowers = async (userId: ObjectId, lastId?: string): Promise<ProfileSearch[]> => {
+    const query: FilterQuery<Follow> = {
+        followingUserId: userId,
+        ...(lastId && { userId: { $gt: lastId } })
+    };
+
+    return await FollowModel.aggregate([
+        { $match: query },
+        { $sort: { userId: 1 } },
+        {
+            $lookup: {
+                from: "profiles",
+                localField: "userId",
+                foreignField: "_id",
+                as: "followers",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1,
+                            profilePic: 1
+                        }
+                    }
+                ]
+            }
+        },
+        { $project: { followers: 1 } },
+        { $limit: 20 }
+    ]);
+}
+
+export const getFollowings = async (userId: ObjectId, lastId?: string): Promise<ProfileSearch[]> => {
+    const query: FilterQuery<Follow> = {
+        userId,
+        ...(lastId && { followingUserId: { $gt: lastId } })
+    };
+
+    return await FollowModel.aggregate([
+        { $match: query },
+        { $sort: { followingUserId: 1 } },
+        {
+            $lookup: {
+                from: "profiles",
+                localField: "followingUserId",
+                foreignField: "_id",
+                as: "followers",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1,
+                            profilePic: 1
+                        }
+                    }
+                ]
+            }
+        },
+        { $project: { followers: 1 } },
+        { $limit: 20 }
+    ]);
 }
