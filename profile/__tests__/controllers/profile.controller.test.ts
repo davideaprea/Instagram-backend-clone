@@ -3,6 +3,10 @@ import { ProfileModel } from "../../src/models/profile.model";
 import { sign } from "jsonwebtoken";
 import request from "supertest";
 import { app, baseRoute } from "../../src";
+import { ProfileDto } from "../../src/types/custom-types/profile-dto.type";
+import { faker } from "@faker-js/faker";
+import { FollowDto } from "../../src/types/custom-types/follow-dto.type";
+import { FollowModel } from "../../src/models/follow.model";
 
 let currUserId: Types.ObjectId;
 let queriedUserId: Types.ObjectId;
@@ -25,6 +29,28 @@ beforeEach(async () => {
 
     currUserToken = sign({ userId: currUserId }, process.env.JWT_SECRET!);
     queriedUserToken = sign({ userId: queriedUserId }, process.env.JWT_SECRET!);
+
+    const profileDtos: ProfileDto[] = [];
+
+    for (let i = 0; i < 100; i++) {
+        profileDtos.push({
+            username: faker.internet.username(),
+            fullName: faker.person.fullName()
+        });
+    }
+
+    await ProfileModel.create(profileDtos);
+
+    const profiles = await ProfileModel.find();
+
+    await FollowModel.create(
+        profiles.map(profile => {
+            return {
+                userId: profile._id,
+                followingUserId: currUserId
+            };
+        })
+    );
 });
 
 describe(`GET ${baseRoute}/users/:username`, () => {
@@ -32,7 +58,7 @@ describe(`GET ${baseRoute}/users/:username`, () => {
         const res = await request(app)
             .get(baseRoute + "/users/username2")
             .set("Authorization", `Bearer ${currUserToken}`);
-        
+
         expect(res.status).toBe(200);
     });
 
@@ -46,5 +72,15 @@ describe(`GET ${baseRoute}/users/:username`, () => {
             .set("Authorization", `Bearer ${currUserToken}`);
 
         expect(res.status).toBe(404);
+    });
+});
+
+describe(`GET ${baseRoute}/users/:profileId/followers/:lastId`, () => {
+    it("should get a page of profile followers", async () => {
+        const res = await request(app)
+            .get(`${baseRoute}/users/${currUserId}/followers`)
+            .set("Authorization", `Bearer ${currUserToken}`);
+        
+        expect(res.status).toBe(200);
     });
 });
