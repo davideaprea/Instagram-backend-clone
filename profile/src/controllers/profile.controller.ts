@@ -70,6 +70,8 @@ export const handleEditProfile: RequestHandler = async (req, res): Promise<void>
 
     await editProfile(userId, req.body);
 
+    req.body.userId = userId;
+
     await profileProducer.send({
         topic: ProfileTopics.PROFILE_UPDATE,
         messages: [{ value: JSON.stringify(req.body) }]

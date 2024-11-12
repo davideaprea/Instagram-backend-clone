@@ -7,7 +7,10 @@ import { profileProducer } from "./producers/profile.producer";
 
 const init = async (): Promise<void> => {
     try {
-        await connect(process.env.LOCAL_DB_URL!);
+        await connect(process.env.LOCAL_DB_URL!, {
+            serverSelectionTimeoutMS: 50000,
+            connectTimeoutMS: 50000
+        });
         console.log("Successully connected to the database.");
     } catch (e) {
         console.log("Couldn't connect to the database.", e);
@@ -30,8 +33,7 @@ const init = async (): Promise<void> => {
         });
         await admin.disconnect();
 
-        await profileProducer.connect()
-
+        await profileProducer.connect();
     } catch (e) {
 
     }

@@ -3,6 +3,7 @@ import { app } from ".";
 import { AuthTopics } from "@ig-clone/common";
 import { kafka } from "./configs/kafka.config";
 import { authProducer } from "./producers/auth.producer";
+import { initProfileConsumer } from "./consumers/profile.consumer";
 
 const init = async (): Promise<void> => {
     try {
@@ -13,6 +14,8 @@ const init = async (): Promise<void> => {
     }
 
     try {
+        await initProfileConsumer();
+
         const admin = kafka.admin();
 
         await admin.connect();
