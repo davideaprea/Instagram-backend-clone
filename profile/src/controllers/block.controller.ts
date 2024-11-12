@@ -3,7 +3,6 @@ import { BlockModel } from "../models/block.model";
 import createHttpError from "http-errors";
 import { blockUser } from "../services/block.service";
 import { getPage } from "@ig-clone/common";
-import { Schema } from "mongoose";
 
 export const handleGetBlockedUsers: RequestHandler = async (req, res) => {
     const userId: string = req.currentUser!.userId;
@@ -11,9 +10,9 @@ export const handleGetBlockedUsers: RequestHandler = async (req, res) => {
 
     const blockedUsers = await getPage(
         BlockModel,
-        { _id: userId },
+        { userId },
         20,
-        new Schema.Types.ObjectId(lastId)
+        lastId
     );
 
     res
