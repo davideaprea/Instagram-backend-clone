@@ -39,7 +39,7 @@ export const handleGetFollowers: RequestHandler = async (req, res): Promise<void
         await isProfilePrivate(profileId);
     }
 
-    const followers = getFollowers(new Schema.Types.ObjectId(userId), lastId);
+    const followers = await getFollowers(userId, lastId);
 
     res
         .status(200)

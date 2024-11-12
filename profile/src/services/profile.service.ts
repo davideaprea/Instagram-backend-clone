@@ -129,9 +129,9 @@ export const createProfile = async (dto: ProfileDto) => {
     });
 }
 
-export const getFollowers = async (userId: ObjectId, lastId?: string): Promise<ProfileSearch[]> => {
+export const getFollowers = async (userId: string, lastId?: string): Promise<ProfileSearch[]> => {
     const query: FilterQuery<Follow> = {
-        followingUserId: userId,
+        followingUserId: new Types.ObjectId(userId),
         ...(lastId && { userId: { $gt: lastId } })
     };
 
@@ -155,14 +155,15 @@ export const getFollowers = async (userId: ObjectId, lastId?: string): Promise<P
                 ]
             }
         },
-        { $project: { followers: 1 } },
+        { $unwind: { path: "$followers", preserveNullAndEmptyArrays: true } },
+        { $replaceRoot: { newRoot: "$followers" } },
         { $limit: 20 }
     ]);
 }
 
-export const getFollowings = async (userId: ObjectId, lastId?: string): Promise<ProfileSearch[]> => {
+export const getFollowings = async (userId: string, lastId?: string): Promise<ProfileSearch[]> => {
     const query: FilterQuery<Follow> = {
-        userId,
+        userId: new Types.ObjectId(userId),
         ...(lastId && { followingUserId: { $gt: lastId } })
     };
 
@@ -186,7 +187,8 @@ export const getFollowings = async (userId: ObjectId, lastId?: string): Promise<
                 ]
             }
         },
-        { $project: { followers: 1 } },
+        { $unwind: { path: "$followers", preserveNullAndEmptyArrays: true } },
+        { $replaceRoot: { newRoot: "$followers" } },
         { $limit: 20 }
     ]);
 }

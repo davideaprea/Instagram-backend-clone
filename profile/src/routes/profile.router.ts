@@ -8,11 +8,11 @@ profileRouter
 .get(handleGetProfileByUsername);
 
 profileRouter
-.route("/users/:profileId/followers/:lastId")
+.route("/users/:profileId/followers/:lastId?")
 .get(handleGetFollowers);
 
 profileRouter
-.route("/users/:profileId/followings/:lastId")
+.route("/users/:profileId/followings/:lastId?")
 .get(handleGetFollowings);
 
 /* profileRouter

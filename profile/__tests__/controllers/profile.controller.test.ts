@@ -5,7 +5,6 @@ import request from "supertest";
 import { app, baseRoute } from "../../src";
 import { ProfileDto } from "../../src/types/custom-types/profile-dto.type";
 import { faker } from "@faker-js/faker";
-import { FollowDto } from "../../src/types/custom-types/follow-dto.type";
 import { FollowModel } from "../../src/models/follow.model";
 
 let currUserId: Types.ObjectId;
@@ -78,9 +77,10 @@ describe(`GET ${baseRoute}/users/:username`, () => {
 describe(`GET ${baseRoute}/users/:profileId/followers/:lastId`, () => {
     it("should get a page of profile followers", async () => {
         const res = await request(app)
-            .get(`${baseRoute}/users/${currUserId}/followers`)
-            .set("Authorization", `Bearer ${currUserToken}`);
-        
+        .get(`${baseRoute}/users/${currUserId}/followers`)
+        .set("Authorization", `Bearer ${currUserToken}`);
+
         expect(res.status).toBe(200);
+        expect(res.body).toHaveLength(20);
     });
 });
