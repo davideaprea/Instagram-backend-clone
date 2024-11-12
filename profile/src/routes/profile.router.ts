@@ -1,7 +1,11 @@
 import { Router } from "express";
-import { handleGetFollowers, handleGetFollowings, handleGetProfileByUsername, handleSearchProfiles } from "../controllers/profile.controller";
+import { handleEditProfile, handleGetFollowers, handleGetFollowings, handleGetProfileByUsername, handleSearchProfiles } from "../controllers/profile.controller";
 
 export const profileRouter: Router = Router();
+
+profileRouter
+.route("/users")
+.patch(handleEditProfile);
 
 profileRouter
 .route("/users/:username")

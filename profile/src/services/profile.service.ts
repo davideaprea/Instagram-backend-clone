@@ -7,6 +7,7 @@ import { InteractionRuleModel } from "../models/interaction-rule.model";
 import { ProfileDto } from "../types/custom-types/profile-dto.type";
 import { FollowModel } from "../models/follow.model";
 import { Follow } from "../types/custom-types/follow.type";
+import { EditProfileDto } from "../types/custom-types/edit-profile-dto.type";
 
 /**
 * Finds a profile by its username, checking if
@@ -191,4 +192,17 @@ export const getFollowings = async (userId: string, lastId?: string): Promise<Pr
         { $replaceRoot: { newRoot: "$followers" } },
         { $limit: 20 }
     ]);
+}
+
+export const editProfile = async (userId: string, dto: EditProfileDto) => {
+    const { biography, gender, fullName, profilePic, username } = dto;
+
+    const result = await ProfileModel.updateOne(
+        { _id: userId },
+        { biography, gender, fullName, profilePic, username }
+    );
+
+    if (result.modifiedCount != 1) {
+        throw new createHttpError.NotFound("Profile not found");
+    }
 }

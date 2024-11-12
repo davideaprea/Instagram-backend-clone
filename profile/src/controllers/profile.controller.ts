@@ -1,9 +1,11 @@
 import { RequestHandler } from "express";
-import { getFollowers, getFollowings, getProfileByUsername, getProfilePage } from "../services/profile.service";
+import { editProfile, getFollowers, getFollowings, getProfileByUsername, getProfilePage } from "../services/profile.service";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
 import { Schema, Types } from "mongoose";
 import { areUsersBlocked } from "../services/block.service";
 import { isProfilePrivate } from "../services/interaction-rules.service";
+import { profileProducer } from "../producers/profile.producer";
+import { ProfileTopics } from "@ig-clone/common";
 
 export const handleGetProfileByUsername: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
@@ -56,9 +58,24 @@ export const handleGetFollowings: RequestHandler = async (req, res): Promise<voi
         await isProfilePrivate(profileId);
     }
 
-    const followers = getFollowings(new Schema.Types.ObjectId(userId), lastId);
+    const followers = getFollowings(userId, lastId);
 
     res
         .status(200)
         .json(followers);
+}
+
+export const handleEditProfile: RequestHandler = async (req, res): Promise<void> => {
+    const userId: string = req.currentUser!.userId;
+
+    await editProfile(userId, req.body);
+
+    await profileProducer.send({
+        topic: ProfileTopics.PROFILE_UPDATE,
+        messages: [{ value: JSON.stringify(req.body) }]
+    });
+
+    res
+    .status(204)
+    .send();
 }
