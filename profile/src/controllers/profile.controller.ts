@@ -56,7 +56,7 @@ export const handleGetFollowings: RequestHandler = async (req, res): Promise<voi
         await isProfilePrivate(profileId);
     }
 
-    const followers = getFollowings(new Schema.Types.ObjectId(userId), lastId);
+    const followers = getFollowings(userId, lastId);
 
     res
         .status(200)
