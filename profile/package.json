@@ -13,7 +13,8 @@
       "./__tests__/setup.ts"
     ],
     "testPathIgnorePatterns": [
-      "./__tests__/setup.ts"
+      "./__tests__/setup.ts",
+      "./__tests__/utils"
     ],
     "testMatch": [
       "<rootDir>/__tests__/**/*.test.ts"
