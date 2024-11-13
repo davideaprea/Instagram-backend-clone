@@ -1,33 +1,23 @@
 import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
-import { sign } from "jsonwebtoken";
 import request from "supertest";
 import { app, baseRoute } from "../../src";
 import { ProfileDto } from "../../src/types/custom-types/profile-dto.type";
 import { faker } from "@faker-js/faker";
 import { FollowModel } from "../../src/models/follow.model";
+import { createUser } from "../utils/create-user";
 
-let currUserId: Types.ObjectId;
-let queriedUserId: Types.ObjectId;
-let currUserToken: string;
-let queriedUserToken: string;
+let joeToken: string;
+let daveToken: string;
+let joeId: Types.ObjectId;
+let daveUsername: string;
 
 beforeEach(async () => {
-    const currUser = await ProfileModel.create({
-        username: "username",
-        fullName: "full name"
-    });
+    const joe = await createUser();
+    const dave = await createUser();
 
-    const queriedUser = await ProfileModel.create({
-        username: "username2",
-        fullName: "new full name"
-    });
-
-    currUserId = currUser._id;
-    queriedUserId = queriedUser._id;
-
-    currUserToken = sign({ userId: currUserId }, process.env.JWT_SECRET!);
-    queriedUserToken = sign({ userId: queriedUserId }, process.env.JWT_SECRET!);
+    ({ id: joeId, token: joeToken } = joe);
+    ({ username: daveUsername, token: daveToken } = dave);
 
     const profileDtos: ProfileDto[] = [];
 
@@ -46,7 +36,7 @@ beforeEach(async () => {
         profiles.map(profile => {
             return {
                 userId: profile._id,
-                followingUserId: currUserId
+                followingUserId: joeId
             };
         })
     );
@@ -55,20 +45,20 @@ beforeEach(async () => {
 describe(`GET ${baseRoute}/users/:username`, () => {
     it("should retrieve the user", async () => {
         const res = await request(app)
-            .get(baseRoute + "/users/username2")
-            .set("Authorization", `Bearer ${currUserToken}`);
+            .get(baseRoute + "/users/" + daveUsername)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         expect(res.status).toBe(200);
     });
 
     it("should't retrieve the user because the queried user has blocked the profile making the request", async () => {
         await request(app)
-            .post(baseRoute + "/blocks/" + currUserId.toString())
-            .set("Authorization", `Bearer ${queriedUserToken}`);
+            .post(baseRoute + "/blocks/" + joeId.toString())
+            .set("Authorization", `Bearer ${daveToken}`);
 
         const res = await request(app)
             .get(baseRoute + "/users/username2")
-            .set("Authorization", `Bearer ${currUserToken}`);
+            .set("Authorization", `Bearer ${joeToken}`);
 
         expect(res.status).toBe(404);
     });
@@ -77,8 +67,8 @@ describe(`GET ${baseRoute}/users/:username`, () => {
 describe(`GET ${baseRoute}/users/:profileId/followers/:lastId`, () => {
     it("should get a page of profile followers", async () => {
         const res = await request(app)
-        .get(`${baseRoute}/users/${currUserId}/followers`)
-        .set("Authorization", `Bearer ${currUserToken}`);
+            .get(`${baseRoute}/users/${joeId}/followers`)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveLength(20);

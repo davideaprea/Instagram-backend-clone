@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
-import { sign } from "jsonwebtoken";
 import request from "supertest";
 import { app, baseRoute } from "../../src";
 import { FollowModel } from "../../src/models/follow.model";
