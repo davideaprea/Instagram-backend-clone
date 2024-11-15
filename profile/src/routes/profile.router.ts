@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { handleEditProfile, handleGetFollowers, handleGetFollowings, handleGetProfileByUsername, handleSearchProfiles } from "../controllers/profile.controller";
+import { handleEditProfile, handleGetFollowers, handleGetFollowings, handleGetProfileById, handleSearchProfiles } from "../controllers/profile.controller";
 
 export const profileRouter: Router = Router();
 
@@ -8,8 +8,8 @@ profileRouter
 .patch(handleEditProfile);
 
 profileRouter
-.route("/users/:username")
-.get(handleGetProfileByUsername);
+.route("/users/:id")
+.get(handleGetProfileById);
 
 profileRouter
 .route("/users/:profileId/followers/:lastId?")

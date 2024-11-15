@@ -1,37 +1,24 @@
 import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
-import { sign } from "jsonwebtoken";
 import request from "supertest";
 import { app, baseRoute } from "../../src";
 import { FollowModel } from "../../src/models/follow.model";
 import { InteractionRuleModel } from "../../src/models/interaction-rule.model";
 import { BlockModel } from "../../src/models/block.model";
 import { ProfileVisibility } from "../../src/types/enums/profile-visibility.enum";
+import { createUser } from "../utils/create-user";
 
-let daveToken: string;
 let joeToken: string;
-let daveId: Types.ObjectId;
-let joeId: Types.ObjectId;
+let daveToken: string;
+let joeId: string;
+let daveId: string;
 
 beforeEach(async () => {
-    const daveUser = await ProfileModel.create({
-        username: "dave01",
-        fullName: "Dave"
-    });
+    const joe = await createUser();
+    const dave = await createUser();
 
-    const joeUser = await ProfileModel.create({
-        username: "joe98",
-        fullName: "Joe"
-    });
-
-    daveId = daveUser._id;
-    joeId = joeUser._id;
-
-    await InteractionRuleModel.create({ userId: joeId });
-    await InteractionRuleModel.create({ userId: daveId });
-
-    daveToken = sign({ userId: daveId }, process.env.JWT_SECRET!);
-    joeToken = sign({ userId: joeId }, process.env.JWT_SECRET!)
+    ({ id: joeId, token: joeToken } = joe);
+    ({ id: daveId, token: daveToken } = dave);
 });
 
 describe(`POST ${baseRoute}/follows/:userId`, () => {

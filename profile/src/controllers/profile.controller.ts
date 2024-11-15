@@ -1,17 +1,17 @@
 import { RequestHandler } from "express";
 import { editProfile, getFollowers, getFollowings, getProfileByUsername, getProfilePage } from "../services/profile.service";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
-import { Schema, Types } from "mongoose";
+import { Types } from "mongoose";
 import { areUsersBlocked } from "../services/block.service";
 import { isProfilePrivate } from "../services/interaction-rules.service";
 import { profileProducer } from "../producers/profile.producer";
 import { ProfileTopics } from "@ig-clone/common";
 
-export const handleGetProfileByUsername: RequestHandler = async (req, res) => {
+export const handleGetProfileById: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
-    const profileUsername: string = req.params.username;
+    const queriedUserId: string = req.params.id;
 
-    const profile = await getProfileByUsername(new Types.ObjectId(currUserId), profileUsername);
+    const profile = await getProfileByUsername(new Types.ObjectId(currUserId), new Types.ObjectId(queriedUserId));
 
     res
         .status(200)

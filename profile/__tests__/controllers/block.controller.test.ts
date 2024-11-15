@@ -1,47 +1,33 @@
 import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
-import { JwtPayload, sign, verify } from "jsonwebtoken";
 import { app, baseRoute } from "../../src";
 import request from "supertest";
 import { BlockModel } from "../../src/models/block.model";
 import { FollowModel } from "../../src/models/follow.model";
-import { InteractionRuleModel } from "../../src/models/interaction-rule.model";
+import { createUser } from "../utils/create-user";
 
-let token: string;
-let newUserToken: string;
-let currUserId: Types.ObjectId;
-let newUserId: Types.ObjectId;
+let joeToken: string;
+let daveToken: string;
+let joeId: string;
+let daveId: string;
 
 beforeEach(async () => {
-    const currUser = await ProfileModel.create({
-        username: "username",
-        fullName: "full name"
-    });
+    const joe = await createUser();
+    const dave = await createUser();
 
-    const newUser = await ProfileModel.create({
-        username: "username2",
-        fullName: "new full name"
-    });
-
-    currUserId = currUser._id;
-    newUserId = newUser._id;
-
-    token = sign({ userId: currUserId.toString() }, process.env.JWT_SECRET!);
-    newUserToken = sign({ userId: newUserId.toString() }, process.env.JWT_SECRET!);
-
-    await InteractionRuleModel.create({ userId: currUser });
-    await InteractionRuleModel.create({ userId: newUserId });
+    ({ id: joeId, token: joeToken } = joe);
+    ({ id: daveId, token: daveToken } = dave);
 });
 
 describe(`POST ${baseRoute}/blocks`, () => {
     it("should block a user", async () => {
         const blockRes = await request(app)
-            .post(baseRoute + "/blocks/" + newUserId.toString())
-            .set("Authorization", `Bearer ${token}`);
+            .post(baseRoute + "/blocks/" + daveId)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         const blockedUsersRes = await request(app)
             .get(baseRoute + "/blocks")
-            .set("Authorization", `Bearer ${token}`);
+            .set("Authorization", `Bearer ${joeToken}`);
 
         expect(blockRes.status).toBe(204);
         expect(blockedUsersRes.status).toBe(200);
@@ -50,17 +36,17 @@ describe(`POST ${baseRoute}/blocks`, () => {
 
     it("should block and unfollow a user", async () => {
         await request(app)
-            .post(baseRoute + "/follows/" + newUserId)
-            .set("Authorization", `Bearer ${token}`);
+            .post(baseRoute + "/follows/" + daveId)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         const blockRes = await request(app)
-            .post(baseRoute + "/blocks/" + currUserId)
-            .set("Authorization", `Bearer ${newUserToken}`);
+            .post(baseRoute + "/blocks/" + joeId)
+            .set("Authorization", `Bearer ${daveToken}`);
 
-        const block = await BlockModel.findOne({ userId: newUserId, blockedUserId: currUserId });
+        const block = await BlockModel.findOne({ userId: daveId, blockedUserId: joeId });
         const follow: number = await FollowModel.countDocuments();
-        const userBlockCreator = (await ProfileModel.findOne({ _id: newUserId }))!
-        const blockedUser = (await ProfileModel.findOne({ _id: currUserId }))!;
+        const userBlockCreator = (await ProfileModel.findOne({ _id: daveId }))!
+        const blockedUser = (await ProfileModel.findOne({ _id: joeId }))!;
 
         expect(follow).toBe(0);
         expect(blockRes.status).toBe(204);
@@ -71,21 +57,21 @@ describe(`POST ${baseRoute}/blocks`, () => {
 
     it("should block a user and remove each others follow", async () => {
         await request(app)
-            .post(baseRoute + "/follows/" + newUserId)
-            .set("Authorization", `Bearer ${token}`);
+            .post(baseRoute + "/follows/" + daveId)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         await request(app)
-            .post(baseRoute + "/follows/" + currUserId)
-            .set("Authorization", `Bearer ${newUserToken}`);
+            .post(baseRoute + "/follows/" + joeId)
+            .set("Authorization", `Bearer ${daveToken}`);
 
         const blockRes = await request(app)
-            .post(baseRoute + "/blocks/" + currUserId)
-            .set("Authorization", `Bearer ${newUserToken}`);
+            .post(baseRoute + "/blocks/" + joeId)
+            .set("Authorization", `Bearer ${daveToken}`);
 
-        const block = await BlockModel.findOne({ userId: newUserId, blockedUserId: currUserId });
+        const block = await BlockModel.findOne({ userId: daveId, blockedUserId: joeId });
         const follow: number = await FollowModel.countDocuments();
-        const userBlockCreator = (await ProfileModel.findOne({ _id: newUserId }))!
-        const blockedUser = (await ProfileModel.findOne({ _id: currUserId }))!;
+        const userBlockCreator = (await ProfileModel.findOne({ _id: daveId }))!
+        const blockedUser = (await ProfileModel.findOne({ _id: joeId }))!;
 
         expect(follow).toBe(0);
         expect(blockRes.status).toBe(204);
@@ -96,8 +82,8 @@ describe(`POST ${baseRoute}/blocks`, () => {
 
     it("should give a 400 because the user can't block himself", async () => {
         const res = await request(app)
-            .post(baseRoute + "/blocks/" + currUserId.toString())
-            .set("Authorization", `Bearer ${token}`);
+            .post(baseRoute + "/blocks/" + joeId)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         expect(res.status).toBe(400);
     });
@@ -106,16 +92,16 @@ describe(`POST ${baseRoute}/blocks`, () => {
 describe(`DELETE ${baseRoute}/blocks`, () => {
     it("should unblock a user", async () => {
         await request(app)
-            .post(baseRoute + "/blocks/" + newUserId)
-            .set("Authorization", `Bearer ${token}`);
+            .post(baseRoute + "/blocks/" + daveId)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         const unblockRes = await request(app)
-            .delete(baseRoute + "/blocks/" + newUserId)
-            .set("Authorization", `Bearer ${token}`);
+            .delete(baseRoute + "/blocks/" + daveId)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         const blockedUsersRes = await request(app)
             .get(baseRoute + "/blocks")
-            .set("Authorization", `Bearer ${token}`);
+            .set("Authorization", `Bearer ${joeToken}`);
 
         expect(unblockRes.status).toBe(204);
         expect(blockedUsersRes.body).toHaveLength(0);
@@ -123,8 +109,8 @@ describe(`DELETE ${baseRoute}/blocks`, () => {
 
     it("should return 404 status", async () => {
         const unblockRes = await request(app)
-            .delete(baseRoute + "/blocks/" + newUserId)
-            .set("Authorization", `Bearer ${token}`);
+            .delete(baseRoute + "/blocks/" + daveId)
+            .set("Authorization", `Bearer ${joeToken}`);
 
         expect(unblockRes.status).toBe(404);
     });

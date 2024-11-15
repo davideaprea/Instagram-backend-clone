@@ -8,7 +8,7 @@ import { areUsersBlocked } from "./block.service";
 import { FollowIds } from "../types/custom-types/follow-ids.type";
 import { getInteractionRules } from "./interaction-rules.service";
 
-const updateFollowInfo = async (
+const updateFollowCounters = async (
     ids: FollowIds,
     session: ClientSession,
     multiplier: 1 | -1 = 1
@@ -39,7 +39,7 @@ const follow = async (ids: FollowIds): Promise<void> => {
     const { userId, followingUserId } = ids;
 
     await transactionHandler(async session => {
-        await updateFollowInfo(ids, session);
+        await updateFollowCounters(ids, session);
 
         await FollowModel.create(
             [{ userId, followingUserId, isAccepted: true }],
@@ -83,7 +83,7 @@ export const unfollow = async (ids: FollowIds, session: ClientSession): Promise<
         throw new createHttpError.NotFound("Follow relationship not found.")
     }
 
-    await updateFollowInfo(ids, session, -1);
+    await updateFollowCounters(ids, session, -1);
 }
 
 export const acceptFollow = async (ids: FollowIds): Promise<void> => {
@@ -103,11 +103,11 @@ export const acceptFollow = async (ids: FollowIds): Promise<void> => {
             throw new createHttpError.NotFound("Follow request not found.");
         }
 
-        await updateFollowInfo(res, session);
+        await updateFollowCounters(res, session);
     });
 }
 
-export const removeRelationship = async (firstUserId: string | ObjectId, secondUserId: string | ObjectId, session: ClientSession) => {
+export const removeMutualFollow = async (firstUserId: string | ObjectId, secondUserId: string | ObjectId, session: ClientSession) => {
     const deleteResult = await FollowModel.deleteMany(
         {
             $or: [
