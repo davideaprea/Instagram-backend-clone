@@ -2,7 +2,8 @@ import { model, Schema } from "mongoose";;
 import { User } from "../types/user.type";
 import { AuthSchemaNames } from "../types/auth-schema-names.enum";
 import { UserMongoModel } from "../types/user-mongo-model.type";
-import { EMAIL_REGEX, NAME_REGEX, PSW_REGEX, USERNAME_REGEX } from "../constants/regexes";
+import { EMAIL_REGEX, PSW_REGEX } from "../constants/regexes";
+import { NAME_REGEX, USERNAME_REGEX } from "@ig-clone/common";
 
 const userSchema = new Schema<User, UserMongoModel>(
     {

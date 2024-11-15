@@ -1,4 +1,4 @@
-import { Model, model, Schema, Types } from "mongoose";
+import { Model, model, Schema } from "mongoose";
 import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
 import { Gender, Profile } from "@ig-clone/common";
 

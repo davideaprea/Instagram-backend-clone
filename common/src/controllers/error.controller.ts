@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
 import { Error } from "mongoose";
 import { MongoServerError } from "mongodb";
+import Joi from "joi";
 
 export const handleError = (err: unknown, req: Request, res: Response, next: NextFunction) => {
     let status: number = 500, messages: string[] = [];
@@ -25,6 +26,10 @@ export const handleError = (err: unknown, req: Request, res: Response, next: Nex
 
                 break;
         }
+    }
+    else if(err instanceof Joi.ValidationError) {
+        status = 400;
+        messages = [err.message];
     }
 
     res

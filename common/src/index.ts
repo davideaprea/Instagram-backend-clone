@@ -11,3 +11,7 @@ export * from "./types/kafka/topics/profile-topics.enum";
 
 export * from "./utils/transaction-handler";
 export * from "./utils/get-page";
+
+export * from "./constants/regexes";
+
+export * from "./joi-schemas/id.schema";

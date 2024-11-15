@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { handleAcceptFollow, handleFollow, handleUnfollow } from "../controllers/follow.controller";
-import { idSchema } from "../joi-schemas/id.schema";
+import { idSchema } from "@ig-clone/common";
 
 export const followRouter: Router = Router();
 
 followRouter.param("userId", async (req, res, next) => {
-    await idSchema.validateAsync(req.params.userId);
+    await idSchema.required().validateAsync(req.params.userId);
     next();
 });
 

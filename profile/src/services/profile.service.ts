@@ -195,11 +195,9 @@ export const getFollowings = async (userId: string, lastId?: string): Promise<Pr
 }
 
 export const editProfile = async (userId: string, dto: EditProfileDto) => {
-    const { biography, gender, fullName, profilePic, username } = dto;
-
     const result = await ProfileModel.updateOne(
         { _id: userId },
-        { biography, gender, fullName, profilePic, username }
+        dto
     );
 
     if (result.modifiedCount != 1) {

@@ -5,15 +5,12 @@ import { Types } from "mongoose";
 import { areUsersBlocked } from "../services/block.service";
 import { isProfilePrivate } from "../services/interaction-rules.service";
 import { profileProducer } from "../producers/profile.producer";
-import { ProfileTopics } from "@ig-clone/common";
-import { idSchema } from "../joi-schemas/id.schema";
-import { idRequiredSchema } from "../joi-schemas/id-required.schema";
+import { idSchema, ProfileTopics } from "@ig-clone/common";
+import { editProfileSchema } from "../joi-schemas/edit-profile.schema";
 
 export const handleGetProfileById: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
     const queriedUserId: string = req.params.id;
-
-    await idRequiredSchema.validateAsync(queriedUserId);
 
     const profile = await getProfileByUsername(new Types.ObjectId(currUserId), new Types.ObjectId(queriedUserId));
 
@@ -28,6 +25,8 @@ export const handleSearchProfiles: RequestHandler = async (req, res): Promise<vo
     const limit: number = Number(req.params.limit);
     const currUserId: string = req.currentUser!.userId;
 
+    await idSchema.validateAsync(lastId);
+
     const results: ProfileSearch[] = await getProfilePage(new Types.ObjectId(currUserId), pattern, limit, lastId);
 
     res
@@ -40,7 +39,6 @@ export const handleGetFollowers: RequestHandler = async (req, res): Promise<void
     const profileId: string = req.params.id;
     const lastId: string = req.params.lastId;
 
-    await idRequiredSchema.validateAsync(profileId);
     await idSchema.validateAsync(lastId);
 
     if (userId != profileId) {
@@ -60,7 +58,6 @@ export const handleGetFollowings: RequestHandler = async (req, res): Promise<voi
     const profileId: string = req.params.id;
     const lastId: string = req.params.lastId;
 
-    await idRequiredSchema.validateAsync(profileId);
     await idSchema.validateAsync(lastId);
 
     if (userId != profileId) {
@@ -77,6 +74,8 @@ export const handleGetFollowings: RequestHandler = async (req, res): Promise<voi
 
 export const handleEditProfile: RequestHandler = async (req, res): Promise<void> => {
     const userId: string = req.currentUser!.userId;
+
+    await editProfileSchema.validateAsync(req.body);
 
     await editProfile(userId, req.body);
 
