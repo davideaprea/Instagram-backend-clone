@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-redis-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: profile-redis
+  template:
+    metadata:
+      labels:
+        app: profile-redis
+    spec:
+      containers:
+        - name: profile-redis
+          image: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile-redis-cluster-ip
+spec:
+  selector:
+    app: profile-redis
+  ports:
+    - name: profile-redis
+      protocol: TCP
+      port: 6379
+      targetPort: 6379

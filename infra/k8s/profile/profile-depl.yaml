@@ -31,6 +31,11 @@ spec:
                 configMapKeyRef:
                   name: kafka-config-map
                   key: url
+            - name: LOCAL_REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: profile-redis-config-map
+                  key: url
 ---
 apiVersion: v1
 kind: Service
