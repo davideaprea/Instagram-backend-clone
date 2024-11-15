@@ -13,7 +13,7 @@ const init = async (): Promise<void> => {
             connectTimeoutMS: 40000,
             serverSelectionTimeoutMS: 40000
         });
-        
+
         console.log("Successully connected to the database.");
     } catch (e) {
         console.log("Couldn't connect to the database.", e);
@@ -37,8 +37,10 @@ const init = async (): Promise<void> => {
         await admin.disconnect();
 
         await profileProducer.connect();
-    } catch (e) {
 
+        console.log("Successully connected to the kafka broker.");
+    } catch (e) {
+        console.log("Couldn't connect to kafka.", e);
     }
 
     app.listen(
