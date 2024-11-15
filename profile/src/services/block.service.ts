@@ -1,7 +1,7 @@
 import { transactionHandler } from "@ig-clone/common"
 import { BlockModel } from "../models/block.model"
 import { FollowModel } from "../models/follow.model";
-import { removeRelationship, unfollow } from "./follow.service";
+import { removeMutualFollow, unfollow } from "./follow.service";
 import createHttpError from "http-errors";
 import { ClientSession, ObjectId } from "mongoose";
 
@@ -29,7 +29,7 @@ export const blockUser = async (userId: string, blockedUserId: string): Promise<
             await unfollow(firstFollow, session);
         }
         else if (followsToDelete.length == 2) {
-            await removeRelationship(firstFollow.userId, firstFollow.followingUserId, session);
+            await removeMutualFollow(firstFollow.userId, firstFollow.followingUserId, session);
         }
     });
 }
