@@ -6,10 +6,14 @@ import { areUsersBlocked } from "../services/block.service";
 import { isProfilePrivate } from "../services/interaction-rules.service";
 import { profileProducer } from "../producers/profile.producer";
 import { ProfileTopics } from "@ig-clone/common";
+import { idSchema } from "../joi-schemas/id.schema";
+import { idRequiredSchema } from "../joi-schemas/id-required.schema";
 
 export const handleGetProfileById: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
     const queriedUserId: string = req.params.id;
+
+    await idRequiredSchema.validateAsync(queriedUserId);
 
     const profile = await getProfileByUsername(new Types.ObjectId(currUserId), new Types.ObjectId(queriedUserId));
 
@@ -33,8 +37,11 @@ export const handleSearchProfiles: RequestHandler = async (req, res): Promise<vo
 
 export const handleGetFollowers: RequestHandler = async (req, res): Promise<void> => {
     const userId: string = req.currentUser!.userId;
-    const profileId: string = req.params.profileId;
+    const profileId: string = req.params.id;
     const lastId: string = req.params.lastId;
+
+    await idRequiredSchema.validateAsync(profileId);
+    await idSchema.validateAsync(lastId);
 
     if (userId != profileId) {
         await areUsersBlocked(userId, profileId);
@@ -50,8 +57,11 @@ export const handleGetFollowers: RequestHandler = async (req, res): Promise<void
 
 export const handleGetFollowings: RequestHandler = async (req, res): Promise<void> => {
     const userId: string = req.currentUser!.userId;
-    const profileId: string = req.params.profileId;
+    const profileId: string = req.params.id;
     const lastId: string = req.params.lastId;
+
+    await idRequiredSchema.validateAsync(profileId);
+    await idSchema.validateAsync(lastId);
 
     if (userId != profileId) {
         await areUsersBlocked(userId, profileId);
