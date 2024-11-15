@@ -13,10 +13,10 @@ import { Follow } from "../types/custom-types/follow.type";
 * the current user hasn't been blocked by the
 * queried profile.
 */
-export const getProfileByUsername = async (currUserId: Types.ObjectId, username: string): Promise<Profile> => {
+export const getProfileByUsername = async (currUserId: Types.ObjectId, queriedUserId: Types.ObjectId): Promise<Profile> => {
     const profiles = await ProfileModel.aggregate<Profile>([
         {
-            $match: { username }
+            $match: { _id: queriedUserId }
         },
         {
             $lookup: {

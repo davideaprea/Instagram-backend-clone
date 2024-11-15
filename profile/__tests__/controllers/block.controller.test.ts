@@ -8,8 +8,8 @@ import { createUser } from "../utils/create-user";
 
 let joeToken: string;
 let daveToken: string;
-let joeId: Types.ObjectId;
-let daveId: Types.ObjectId;
+let joeId: string;
+let daveId: string;
 
 beforeEach(async () => {
     const joe = await createUser();
@@ -22,7 +22,7 @@ beforeEach(async () => {
 describe(`POST ${baseRoute}/blocks`, () => {
     it("should block a user", async () => {
         const blockRes = await request(app)
-            .post(baseRoute + "/blocks/" + daveId.toString())
+            .post(baseRoute + "/blocks/" + daveId)
             .set("Authorization", `Bearer ${joeToken}`);
 
         const blockedUsersRes = await request(app)
@@ -82,7 +82,7 @@ describe(`POST ${baseRoute}/blocks`, () => {
 
     it("should give a 400 because the user can't block himself", async () => {
         const res = await request(app)
-            .post(baseRoute + "/blocks/" + joeId.toString())
+            .post(baseRoute + "/blocks/" + joeId)
             .set("Authorization", `Bearer ${joeToken}`);
 
         expect(res.status).toBe(400);

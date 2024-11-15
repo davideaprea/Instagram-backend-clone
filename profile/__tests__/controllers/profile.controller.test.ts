@@ -9,15 +9,15 @@ import { createUser } from "../utils/create-user";
 
 let joeToken: string;
 let daveToken: string;
-let joeId: Types.ObjectId;
-let daveUsername: string;
+let joeId: string;
+let daveId: string;
 
 beforeEach(async () => {
     const joe = await createUser();
     const dave = await createUser();
 
     ({ id: joeId, token: joeToken } = joe);
-    ({ username: daveUsername, token: daveToken } = dave);
+    ({ id: daveId, token: daveToken } = dave);
 
     const profileDtos: ProfileDto[] = [];
 
@@ -45,7 +45,7 @@ beforeEach(async () => {
 describe(`GET ${baseRoute}/users/:username`, () => {
     it("should retrieve the user", async () => {
         const res = await request(app)
-            .get(baseRoute + "/users/" + daveUsername)
+            .get(baseRoute + "/users/" + daveId)
             .set("Authorization", `Bearer ${joeToken}`);
 
         expect(res.status).toBe(200);
@@ -53,11 +53,11 @@ describe(`GET ${baseRoute}/users/:username`, () => {
 
     it("should't retrieve the user because the queried user has blocked the profile making the request", async () => {
         await request(app)
-            .post(baseRoute + "/blocks/" + joeId.toString())
+            .post(baseRoute + "/blocks/" + joeId)
             .set("Authorization", `Bearer ${daveToken}`);
 
         const res = await request(app)
-            .get(baseRoute + "/users/username2")
+            .get(baseRoute + "/users/" + daveId)
             .set("Authorization", `Bearer ${joeToken}`);
 
         expect(res.status).toBe(404);

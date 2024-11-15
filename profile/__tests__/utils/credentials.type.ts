@@ -1,7 +1,6 @@
 import { Types } from "mongoose";
 
 export type Credentials = {
-    id: Types.ObjectId,
-    token: string,
-    username: string
+    id: string
+    token: string
 };

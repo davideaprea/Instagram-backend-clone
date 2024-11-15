@@ -10,8 +10,8 @@ import { createUser } from "../utils/create-user";
 
 let joeToken: string;
 let daveToken: string;
-let joeId: Types.ObjectId;
-let daveId: Types.ObjectId;
+let joeId: string;
+let daveId: string;
 
 beforeEach(async () => {
     const joe = await createUser();

@@ -14,9 +14,10 @@ export const createUser = async (): Promise<Credentials> => {
         userId: user._id
     });
 
+    const userId: string = user._id.toString();
+
     return {
-        id: user._id,
-        token: sign({ userId: user._id.toString() }, process.env.JWT_SECRET!),
-        username: user.username
+        id: userId,
+        token: sign({ userId }, process.env.JWT_SECRET!)
     };
 }
