@@ -5,7 +5,7 @@ import { idSchema } from "@ig-clone/common";
 export const blockRouter: Router = Router();
 
 blockRouter.param("blockedUserId", async (req, res, next) => {
-    await idSchema.required().validateAsync(req.params.blockedUserId);
+    await idSchema.validateAsync(req.params.blockedUserId);
     next();
 });
 

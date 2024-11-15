@@ -5,7 +5,7 @@ import { idSchema } from "@ig-clone/common";
 export const profileRouter: Router = Router();
 
 profileRouter.param("id", async (req, res, next) => {
-    await idSchema.required().validateAsync(req.params.id);
+    await idSchema.validateAsync(req.params.id);
     next();
 });
 
