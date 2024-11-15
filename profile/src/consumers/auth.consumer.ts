@@ -1,10 +1,10 @@
 import { Consumer } from "kafkajs";
-import { kafka } from "../configs/kafka.config";
 import { AuthTopics } from "@ig-clone/common";
 import { createProfile } from "../services/profile.service";
+import { kafkaClient } from "../configs/kafka-client.config";
 
 export const initAuthConsumer = async (): Promise<void> => {
-    const consumer: Consumer = kafka.consumer({
+    const consumer: Consumer = kafkaClient.consumer({
         groupId: "profile-group",
         sessionTimeout: 30000
     });

@@ -1,6 +1,6 @@
 import { Producer } from "kafkajs";
-import { kafka } from "../configs/kafka.config";
+import { kafkaClient } from "../configs/kafka-client.config";
 
-export const profileProducer: Producer = kafka.producer({
+export const profileProducer: Producer = kafkaClient.producer({
     allowAutoTopicCreation: false
 });
