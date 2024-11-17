@@ -1,8 +1,10 @@
 import request from "supertest";
 import { app, baseRoute } from "../../src";
 
+jest.mock("../../src/producers/auth.producer");
+
 describe(`POST ${baseRoute}/register`, () => {
-    it("registers a new user and returns just its username and full name, with a status of 201", async () => {
+    it("registers a new user and returns just its username, full name and id with a status of 201", async () => {
         const res = await request(app)
             .post(baseRoute + "/register")
             .send({
@@ -11,12 +13,13 @@ describe(`POST ${baseRoute}/register`, () => {
                 password: "Password%2024",
                 fullName: "Full Name"
             });
+        
+        const {username, fullName, id} = res.body;
 
         expect(res.status).toBe(201);
-        expect(res.body).toEqual({
-            username: "username",
-            fullName: "Full Name"
-        });
+        expect(username).toBe("username");
+        expect(fullName).toBe("Full Name");
+        expect(id).toBeDefined();
     });
 
     it("should return a 400 status with every validation message", async () => {
