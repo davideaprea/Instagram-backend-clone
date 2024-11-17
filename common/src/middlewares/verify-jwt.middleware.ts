@@ -20,22 +20,24 @@ const decodeJwt = (token: string): JwtPayload | undefined => {
     }
 };
 
-export const verifyJwt: RequestHandler = async (req, res, next): Promise<void> => {
-    const token: string | undefined = getJwtFromReq(req);
+export const verifyJwt = (doesUserExist: (userId: string) => Promise<boolean>): RequestHandler => {
+    return async (req, res, next): Promise<void> => {
+        const token: string | undefined = getJwtFromReq(req);
 
-    if (!token) {
-        return next(new createHttpError.Unauthorized());
+        if (!token) {
+            return next(new createHttpError.Unauthorized());
+        }
+
+        const jwt: JwtPayload | undefined = decodeJwt(token);
+
+        if (!jwt || !await doesUserExist(jwt.userId)) {
+            return next(new createHttpError.Unauthorized());
+        }
+
+        req.currentUser = {
+            userId: jwt.userId
+        };
+
+        next();
     }
-
-    const jwt: JwtPayload | undefined = decodeJwt(token);
-
-    if (!jwt) {
-        return next(new createHttpError.Unauthorized());
-    }
-
-    req.currentUser = {
-        userId: jwt.userId
-    };
-
-    next();
 }
