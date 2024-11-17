@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
 import request from "supertest";
 import { app, baseRoute } from "../../src";
@@ -6,6 +5,8 @@ import { ProfileDto } from "../../src/types/custom-types/profile-dto.type";
 import { faker } from "@faker-js/faker";
 import { FollowModel } from "../../src/models/follow.model";
 import { createUser } from "../utils/create-user";
+
+jest.mock("../../src/producers/profile.producer");
 
 let joeToken: string;
 let daveToken: string;
@@ -72,5 +73,32 @@ describe(`GET ${baseRoute}/users/:profileId/followers/:lastId`, () => {
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveLength(20);
+    });
+});
+
+describe(`PATCH ${baseRoute}/users`, () => {
+    it("should edit a user's profile", async () => {
+        const res = await request(app)
+            .patch(`${baseRoute}/users`)
+            .set("Authorization", `Bearer ${joeToken}`)
+            .send({
+                username: "joey101",
+                fullName: "Joey Johnson",
+                biography: "Hi there!"
+            });
+
+        expect(res.status).toBe(204);
+    });
+
+    it("shouldn't edit a profile because of a bad request", async () => {
+        const res = await request(app)
+            .patch(`${baseRoute}/users`)
+            .set("Authorization", `Bearer ${joeToken}`)
+            .send({
+                username: "joe/*__y101",
+                fullName: "Joey John23424||/wason"
+            });
+
+        expect(res.status).toBe(400);
     });
 });
