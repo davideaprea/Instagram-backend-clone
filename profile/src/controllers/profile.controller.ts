@@ -5,8 +5,9 @@ import { Types } from "mongoose";
 import { areUsersBlocked } from "../services/block.service";
 import { isProfilePrivate } from "../services/interaction-rules.service";
 import { profileProducer } from "../producers/profile.producer";
-import { idSchema, ProfileTopics } from "@ig-clone/common";
+import { deleteFile, idSchema, ProfileTopics, saveFile } from "@ig-clone/common";
 import { editProfileSchema } from "../joi-schemas/edit-profile.schema";
+import { ProfileModel } from "../models/profile.model";
 
 export const handleGetProfileById: RequestHandler = async (req, res) => {
     const currUserId: string = req.currentUser!.userId;
@@ -87,6 +88,32 @@ export const handleEditProfile: RequestHandler = async (req, res): Promise<void>
     });
 
     res
-    .status(204)
-    .send();
+        .status(204)
+        .send();
+}
+
+export const handleEditProfilePic: RequestHandler = async (req, res): Promise<void> => {
+    const userId: string = req.currentUser!.userId;
+
+    const fileName: string = await saveFile(req.file!);
+    await ProfileModel.updateOne({ _id: userId }, { profilePic: fileName });
+
+    res
+        .status(200)
+        .json({
+            profilePic: fileName
+        });
+}
+
+export const handleDeleteProfilePic: RequestHandler = async (req, res): Promise<void> => {
+    const userId: string = req.currentUser!.userId;
+
+    const user = await ProfileModel.findById(userId, { profilePic: 1 });
+    const profilePic = user!.profilePic;
+
+    if (profilePic) await deleteFile(profilePic);
+
+    res
+        .status(204)
+        .send();
 }
