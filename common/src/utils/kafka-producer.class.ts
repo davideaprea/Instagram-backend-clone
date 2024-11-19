@@ -1,13 +1,7 @@
-import { Kafka, Producer } from "kafkajs";
+import { Producer } from "kafkajs";
 
 export class KafkaProducer<T extends Record<string, {}>> {
-    private readonly producer: Producer;
-
-    constructor(private readonly kafka: Kafka) {
-        this.producer = this.kafka.producer({
-            allowAutoTopicCreation: false
-        })
-    }
+    constructor(private readonly producer: Producer) { }
 
     async sendMsg<K extends Extract<keyof T, string>>(topic: K, msg: T[K]): Promise<void> {
         await this.producer.send({

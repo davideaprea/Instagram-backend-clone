@@ -4,9 +4,7 @@ export class KafkaConsumer<T extends Record<string, {}>> {
     constructor(
         private readonly consumer: Consumer,
         private readonly eventHandlers: { [K in keyof T]: (msg: T[K]) => void | Promise<void> }
-    ) {
-        this.connect();
-    }
+    ) { }
 
     async connect(): Promise<void> {
         await this.consumer.connect();
@@ -21,7 +19,7 @@ export class KafkaConsumer<T extends Record<string, {}>> {
                 const stringMsgValue: string = message.value.toString();
                 const jsonMsgValue = JSON.parse(stringMsgValue);
     
-                this.eventHandlers[topic](jsonMsgValue);
+                this.eventHandlers[topic]?.(jsonMsgValue);
             },
         });
     }

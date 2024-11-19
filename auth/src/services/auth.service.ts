@@ -1,6 +1,5 @@
 import { compareSync, hashSync } from "bcrypt";
 import { UserModel } from "../models/user.model";
-import { AuthResponse } from "../types/auth-response.type";
 import { LoginDto } from "../types/login-dto.type";
 import { UserDocument } from "../types/user-document.type";
 import { User } from "../types/user.type";
@@ -8,8 +7,9 @@ import createHttpError from "http-errors";
 import { LoginResponse } from "../types/login-response.type";
 import { generateJwt } from "./jwt-manager.service";
 import { Error } from "mongoose";
+import { UserCreateDto } from "@ig-clone/common";
 
-export const register = async (registerDto: User): Promise<AuthResponse> => {
+export const register = async (registerDto: User): Promise<UserCreateDto> => {
     const user = new UserModel(registerDto);
 
     const err: Error.ValidationError | null = user.validateSync();

@@ -1,4 +1,4 @@
-export type UserCreateMsg = {
+export type UserCreateDto = {
     id: string
     username: string
     fullName: string
