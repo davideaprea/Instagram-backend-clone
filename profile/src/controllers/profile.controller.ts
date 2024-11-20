@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 import { areUsersBlocked } from "../services/block.service";
 import { isProfilePrivate } from "../services/interaction-rules.service";
 import { profileProducer } from "../producers/profile.producer";
-import { deleteFile, idSchema, ProfileTopics, saveFile } from "@ig-clone/common";
+import { deleteFile, EditProfileMsg, idSchema, ProfileTopics, saveFile } from "@ig-clone/common";
 import { editProfileSchema } from "../joi-schemas/edit-profile.schema";
 import { ProfileModel } from "../models/profile.model";
 
@@ -80,12 +80,12 @@ export const handleEditProfile: RequestHandler = async (req, res): Promise<void>
 
     await editProfile(userId, req.body);
 
-    req.body.userId = userId;
+    const msg: EditProfileMsg = {
+        id: userId,
+        ...req.body
+    }
 
-    await profileProducer.send({
-        topic: ProfileTopics.PROFILE_UPDATE,
-        messages: [{ value: JSON.stringify(req.body) }]
-    });
+    await profileProducer.sendMsg(ProfileTopics.PROFILE_UPDATE, msg);
 
     res
         .status(204)

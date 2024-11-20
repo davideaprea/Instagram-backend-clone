@@ -7,9 +7,9 @@ import createHttpError from "http-errors";
 import { LoginResponse } from "../types/login-response.type";
 import { generateJwt } from "./jwt-manager.service";
 import { Error } from "mongoose";
-import { UserCreateDto } from "@ig-clone/common";
+import { AuthResponse } from "../types/auth-response.type";
 
-export const register = async (registerDto: User): Promise<UserCreateDto> => {
+export const register = async (registerDto: User): Promise<AuthResponse> => {
     const user = new UserModel(registerDto);
 
     const err: Error.ValidationError | null = user.validateSync();

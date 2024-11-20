@@ -2,10 +2,11 @@ import { RequestHandler } from "express";
 import { login, register } from "../services/auth.service";
 import { LoginResponse } from "../types/login-response.type";
 import { authProducer } from "../producers/auth.producer";
-import { AuthTopics, UserCreateDto } from "@ig-clone/common";
+import { AuthTopics } from "@ig-clone/common";
+import { AuthResponse } from "../types/auth-response.type";
 
 export const handleRegistration: RequestHandler = async (req, res): Promise<void> => {
-    const authRes: UserCreateDto = await register(req.body);
+    const authRes: AuthResponse = await register(req.body);
 
     await authProducer.sendMsg(AuthTopics.USER_CREATE, authRes);
 

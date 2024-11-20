@@ -1,14 +1,14 @@
 import { app } from ".";
-import { initAuthConsumer } from "./consumers/auth.consumer";
 import { profileProducer } from "./producers/profile.producer";
 import { initMongoConnection } from "./configs/init-mongo-connection.config";
 import { initKafkaTopics } from "./configs/kafka-topics.config";
+import { authConsumer } from "./consumers/auth.consumer";
 
 const init = async (): Promise<void> => {
     await initMongoConnection();
 
     try {
-        await initAuthConsumer();
+        await authConsumer.connect();
 
         await initKafkaTopics();
 
