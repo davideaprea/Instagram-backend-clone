@@ -5,7 +5,8 @@ import { kafkaClient } from "../configs/kafka-client.config";
 
 const consumer: Consumer = kafkaClient.consumer({
     groupId: "profile-group",
-    sessionTimeout: 30000
+    sessionTimeout: 30000,
+    allowAutoTopicCreation: false
 });
 
 export const authConsumer = new KafkaConsumer<AuthEvents>(

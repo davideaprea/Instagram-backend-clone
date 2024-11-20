@@ -9,8 +9,7 @@ export class KafkaConsumer<T extends Record<string, {}>> {
     async connect(): Promise<void> {
         await this.consumer.connect();
         await this.consumer.subscribe({
-            topics: Object.keys(this.eventHandlers),
-            fromBeginning: true
+            topics: Object.keys(this.eventHandlers)
         });
         await this.consumer.run({
             eachMessage: async ({ topic, message }) => {
