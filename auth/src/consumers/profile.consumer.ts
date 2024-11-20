@@ -12,7 +12,6 @@ export const profileConsumer = new KafkaConsumer<ProfileEvents>(
     consumer,
     {
         [ProfileTopics.PROFILE_UPDATE]: async msg => {
-            console.log("Profile update", msg)
             const {id, ...editDto} = msg;
 
             await UserModel.updateOne({ _id: msg.id }, editDto);
