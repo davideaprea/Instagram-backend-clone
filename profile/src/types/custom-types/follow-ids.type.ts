@@ -1,6 +1,6 @@
-import { ObjectId } from "mongoose"
+import { Types } from "mongoose"
 
 export type FollowIds = {
-    readonly userId: string | ObjectId
-    readonly followingUserId: string | ObjectId
+    readonly userId: string
+    readonly followingUserId: string
 }

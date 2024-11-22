@@ -6,6 +6,9 @@ export * from "./middlewares/add-files-to-body.middleware";
 export * from "./types/current-user.type";
 export * from "./types/gender.enum";
 export * from "./types/profile.type";
+export * from "./types/interaction-rule.enum";
+export * from "./types/profile-interaction-rules.type";
+export * from "./types/profile-visibility.enum";
 
 export * from "./types/kafka/topics/auth-topics.enum";
 export * from "./types/kafka/topics/profile-topics.enum";

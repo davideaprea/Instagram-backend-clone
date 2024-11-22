@@ -1,5 +1,6 @@
 import { ObjectId } from "mongoose";
 import { Gender } from "./gender.enum";
+import { ProfileInteractionRules } from "./profile-interaction-rules.type";
 
 export type Profile = {
     readonly userId: ObjectId
@@ -12,4 +13,5 @@ export type Profile = {
     username: string
     fullName: string
     readonly time: number
+    interactionRules: ProfileInteractionRules
 };

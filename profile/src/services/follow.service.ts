@@ -1,147 +1,84 @@
 import { transactionHandler } from "@ig-clone/common";
-import { FollowModel } from "../models/follow.model";
-import { ProfileVisibility } from "../types/enums/profile-visibility.enum";
-import { ProfileModel } from "../models/profile.model";
 import createHttpError from "http-errors";
-import { ClientSession, ObjectId } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { areUsersBlocked } from "./block.service";
 import { FollowIds } from "../types/custom-types/follow-ids.type";
-import { getInteractionRules } from "./interaction-rules.service";
+import { ProfileService } from "./profile.service";
+import { FollowRepository } from "../repositories/follow.repository";
+import { ProfileRepository } from "../repositories/profile.repository";
 
-const updateFollowCounters = async (
-    ids: FollowIds,
-    session: ClientSession,
-    multiplier: 1 | -1 = 1
-): Promise<void> => {
-    const { userId, followingUserId } = ids;
+export namespace FollowService {
+    const updateFollowCounters = async (
+        ids: FollowIds,
+        session: ClientSession,
+        multiplier: 1 | -1
+    ): Promise<void> => {
+        const modifiedCount: number = await ProfileRepository.updateFollowCounters(ids, session, multiplier);
 
-    const updateResult = await ProfileModel.bulkWrite([
-        {
-            updateOne: {
-                filter: { _id: userId },
-                update: { $inc: { following: 1 * multiplier } }
-            }
-        },
-        {
-            updateOne: {
-                filter: { _id: followingUserId },
-                update: { $inc: { followers: 1 * multiplier } }
-            }
+        if (modifiedCount != 2) {
+            throw new createHttpError.NotFound("Profile not found.");
         }
-    ], { session });
-
-    if (updateResult.modifiedCount != 2) {
-        throw new createHttpError.NotFound("Profile not found.");
     }
-}
 
-const follow = async (ids: FollowIds): Promise<void> => {
-    const { userId, followingUserId } = ids;
+    const follow = async (ids: FollowIds): Promise<void> => {
+        await transactionHandler(async session => {
+            await updateFollowCounters(ids, session, 1);
+            await FollowRepository.create(ids, session);
+        });
+    }
 
-    await transactionHandler(async session => {
-        await updateFollowCounters(ids, session);
+    export const addFollowOrRequest = async (ids: FollowIds): Promise<{ isAccepted: boolean }> => {
+        const { userId, followingUserId } = ids;
 
-        await FollowModel.create(
-            [{ userId, followingUserId, isAccepted: true }],
-            { session }
-        );
-    });
-}
+        await areUsersBlocked(followingUserId, userId);
 
-export const addFollowOrRequest = async (ids: FollowIds): Promise<{ isAccepted: boolean }> => {
-    const { userId, followingUserId } = ids;
+        if (!ProfileService.isProfilePrivate(followingUserId)) {
+            await follow(ids);
+            return { isAccepted: true };
+        }
 
-    await areUsersBlocked(followingUserId, userId);
+        await FollowRepository.createRequest(ids);
 
-    const profileRule = await getInteractionRules(followingUserId);
-
-    if (profileRule.visibility == ProfileVisibility.PUBLIC) {
-        await follow(ids);
         return { isAccepted: true };
     }
 
-    await FollowModel.create(
-        {
-            userId,
-            followingUserId,
-            isAccepted: false
-        }
-    );
+    export const unfollow = async (ids: FollowIds, session: ClientSession): Promise<void> => {
+        const deletedCount: number = await FollowRepository.deleteFollow(ids, session);
 
-    return { isAccepted: true };
-}
-
-export const unfollow = async (ids: FollowIds, session: ClientSession): Promise<void> => {
-    const { userId, followingUserId } = ids;
-
-    const deletionResult = await FollowModel.deleteOne(
-        { userId, followingUserId, isAccepted: true },
-        { session }
-    );
-
-    if (deletionResult.deletedCount != 1) {
-        throw new createHttpError.NotFound("Follow relationship not found.")
-    }
-
-    await updateFollowCounters(ids, session, -1);
-}
-
-export const acceptFollow = async (ids: FollowIds): Promise<void> => {
-    const { userId, followingUserId } = ids;
-
-    await transactionHandler(async session => {
-        const res = await FollowModel.findOneAndUpdate(
-            {
-                userId,
-                followingUserId,
-                isAccepted: false
-            },
-            { isAccepted: true }
-        );
-
-        if (!res) {
-            throw new createHttpError.NotFound("Follow request not found.");
+        if (deletedCount != 1) {
+            throw new createHttpError.NotFound("Follow relationship not found.")
         }
 
-        await updateFollowCounters(res, session);
-    });
-}
-
-export const removeMutualFollow = async (firstUserId: string | ObjectId, secondUserId: string | ObjectId, session: ClientSession) => {
-    const deleteResult = await FollowModel.deleteMany(
-        {
-            $or: [
-                { userId: firstUserId, followingUserId: secondUserId },
-                { userId: secondUserId, followingUserId: firstUserId }
-            ]
-        },
-        { session }
-    );
-
-    if (deleteResult.deletedCount != 2) {
-        throw new createHttpError.NotFound("Profile not found.");
+        await updateFollowCounters(ids, session, 1);
     }
 
-    const updateResult = await ProfileModel.bulkWrite([
-        {
-            updateOne: {
-                filter: { _id: firstUserId },
-                update: { $inc: { followers: -1, following: -1 } }
+    export const acceptFollow = async (ids: FollowIds): Promise<void> => {
+        await transactionHandler(async session => {
+            const res = await FollowRepository.acceptFollow(ids, session);
+
+            if (!res) {
+                throw new createHttpError.NotFound("Follow request not found.");
             }
-        },
-        {
-            updateOne: {
-                filter: { _id: secondUserId },
-                update: { $inc: { followers: -1, following: -1 } }
-            }
-        }
-    ], { session });
 
-    if (updateResult.modifiedCount != 2) {
-        throw new createHttpError.NotFound("Profile not found.");
+            await updateFollowCounters(ids, session, 1);
+        });
     }
-}
 
-export const transUnfollow = async (ids: FollowIds) => {
-    await transactionHandler(async session => unfollow(ids, session));
+    export const removeMutualFollow = async (firstUserId: Types.ObjectId, secondUserId: Types.ObjectId, session: ClientSession) => {
+        const deletedCount: number = await FollowRepository.removeMutualFollow(firstUserId, secondUserId, session);
+
+        if (deletedCount != 2) {
+            throw new createHttpError.NotFound("Profile not found.");
+        }
+
+        const modifiedCount = await ProfileRepository.updateMutualCounters(firstUserId, secondUserId, session, -1);
+
+        if (modifiedCount != 2) {
+            throw new createHttpError.NotFound("Profile not found.");
+        }
+    }
+
+    export const transUnfollow = async (ids: FollowIds) => {
+        await transactionHandler(async session => unfollow(ids, session));
+    }
 }

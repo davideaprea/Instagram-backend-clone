@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { handleAcceptFollow, handleFollow, handleUnfollow } from "../controllers/follow.controller";
 import { idSchema } from "@ig-clone/common";
+import { FollowController } from "../controllers/follow.controller";
 
 export const followRouter: Router = Router();
 
@@ -11,6 +11,6 @@ followRouter.param("userId", async (req, res, next) => {
 
 followRouter
 .route("/follows/:userId")
-.post(handleFollow)
-.delete(handleUnfollow)
-.patch(handleAcceptFollow);
+.post(FollowController.follow)
+.delete(FollowController.unfollow)
+.patch(FollowController.acceptFollow);

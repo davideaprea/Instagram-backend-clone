@@ -2,205 +2,93 @@ import createHttpError from "http-errors";
 import { ProfileModel } from "../models/profile.model";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
 import { Profile, transactionHandler } from "@ig-clone/common";
-import { FilterQuery, ObjectId, Types } from "mongoose";
-import { InteractionRuleModel } from "../models/interaction-rule.model";
+import { ObjectId, Types } from "mongoose";
 import { ProfileDto } from "../types/custom-types/profile-dto.type";
-import { FollowModel } from "../models/follow.model";
-import { Follow } from "../types/custom-types/follow.type";
 import { EditProfileDto } from "../types/custom-types/edit-profile-dto.type";
+import { ProfileInteractionRules } from "@ig-clone/common/dist/types/profile-interaction-rules.type";
+import { ProfileVisibility } from "@ig-clone/common/dist/types/profile-visibility.enum";
+import { ProfileRepository } from "../repositories/profile.repository";
 
-/**
-* Finds a profile by its username, checking if
-* the current user hasn't been blocked by the
-* queried profile.
-*/
-export const getProfileByUsername = async (currUserId: Types.ObjectId, queriedUserId: Types.ObjectId): Promise<Profile> => {
-    const profiles = await ProfileModel.aggregate<Profile>([
-        {
-            $match: { _id: queriedUserId }
-        },
-        {
-            $lookup: {
-                from: "blocks",
-                let: { targetUserId: "$_id" },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $eq: ["$userId", "$$targetUserId"] },
-                                    { $eq: ["$blockedUserId", currUserId] }
-                                ]
-                            }
-                        }
-                    }
-                ],
-                as: "blockStatus"
-            }
-        },
-        {
-            $match: { "blockStatus": { $size: 0 } }
-        },
-        {
-            $project: { blockStatus: 0 }
+export namespace ProfileService {
+    /**
+    * Finds a profile by its username, checking if
+    * the current user hasn't been blocked by the
+    * queried profile.
+    */
+    export const getProfileIfNotBlocked = async (currUserId: Types.ObjectId, queriedUserId: Types.ObjectId): Promise<Profile> => {
+        const profile = await ProfileRepository.queryProfileIfNotBlocked(currUserId, queriedUserId);
+    
+        if (!profile) {
+            throw new createHttpError.NotFound("Profile not found.");
         }
-    ]);
-
-    if (profiles.length == 0) {
-        throw new createHttpError.NotFound("Profile not found.");
+    
+        return profile;
     }
-
-    return profiles[0];
-}
-
-/**
-* Finds profiles by the given pattern, checking if
-* the current user hasn't been blocked by the
-* queried profiles.
-*/
-export const getProfilePage = async (currUserId: Types.ObjectId, pattern: string, limit: number = 10, lastId?: string): Promise<ProfileSearch[]> => {
-    const query: Record<string, any> = { $text: { $search: pattern } };
-
-    if (lastId) query._id = { $gt: lastId };
-    if (limit > 20 || limit <= 0) limit = 10;
-
-    return await ProfileModel
-        .aggregate([
-            { $match: query },
-            { $sort: { _id: 1 } },
-            {
-                $lookup: {
-                    from: "blocks",
-                    let: { targetUserId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        { $eq: ["$userId", "$$targetUserId"] },
-                                        { $eq: ["$blockedUserId", currUserId] }
-                                    ]
-                                }
-                            }
-                        }
-                    ],
-                    as: "blockStatus"
-                }
-            },
-            {
-                $match: { "blockStatus": { $size: 0 } }
-            },
-            {
-                $project: {
-                    username: 1,
-                    profilePic: 1,
-                    fullName: 1
-                }
-            },
-            { $limit: limit }
-        ]);
-}
-
-export const getProfileById = async (id: ObjectId): Promise<Profile> => {
-    const profile = await ProfileModel.findById(id);
-
-    if (!profile) {
-        throw new createHttpError.NotFound("Profile not found.");
+    
+    /**
+    * Finds profiles by the given pattern, checking if
+    * the current user hasn't been blocked by the
+    * queried profiles.
+    */
+    export const getProfilePage = async (currUserId: Types.ObjectId, pattern: string, limit: number = 10, lastId?: string): Promise<ProfileSearch[]> => {
+        const query: Record<string, any> = { $text: { $search: pattern } };
+    
+        if (lastId) query._id = { $gt: lastId };
+        if (limit > 20 || limit <= 0) limit = 10;
+    
+        return await ProfileRepository.queryProfilePage(currUserId, query, limit);
     }
-
-    return profile;
-}
-
-export const createProfile = async (dto: ProfileDto) => {
-    await transactionHandler(async session => {
-        const { id, fullName, username } = dto;
-
-        await ProfileModel.create(
-            [{
-                _id: id,
-                fullName,
-                username
-            }],
-            { session });
-
-        await InteractionRuleModel.create(
-            [{ userId: id }],
-            { session }
+    
+    export const getProfileById = async (id: ObjectId): Promise<Profile> => {
+        const profile = await ProfileModel.findById(id);
+    
+        if (!profile) {
+            throw new createHttpError.NotFound("Profile not found.");
+        }
+    
+        return profile;
+    }
+    
+    export const createProfile = async (dto: ProfileDto) => {
+        await transactionHandler(async session => {
+            const { id, fullName, username } = dto;
+    
+            await ProfileModel.create(
+                [{
+                    _id: id,
+                    fullName,
+                    username
+                }],
+                { session });
+        });
+    }
+    
+    export const editProfile = async (userId: string, dto: EditProfileDto) => {
+        const result = await ProfileModel.updateOne(
+            { _id: userId },
+            dto
         );
-    });
-}
-
-export const getFollowers = async (userId: string, lastId?: string): Promise<ProfileSearch[]> => {
-    const query: FilterQuery<Follow> = {
-        followingUserId: new Types.ObjectId(userId),
-        ...(lastId && { userId: { $gt: lastId } })
-    };
-
-    return await FollowModel.aggregate([
-        { $match: query },
-        { $sort: { userId: 1 } },
-        {
-            $lookup: {
-                from: "profiles",
-                localField: "userId",
-                foreignField: "_id",
-                as: "followers",
-                pipeline: [
-                    {
-                        $project: {
-                            username: 1,
-                            fullName: 1,
-                            profilePic: 1
-                        }
-                    }
-                ]
-            }
-        },
-        { $unwind: { path: "$followers", preserveNullAndEmptyArrays: true } },
-        { $replaceRoot: { newRoot: "$followers" } },
-        { $limit: 20 }
-    ]);
-}
-
-export const getFollowings = async (userId: string, lastId?: string): Promise<ProfileSearch[]> => {
-    const query: FilterQuery<Follow> = {
-        userId: new Types.ObjectId(userId),
-        ...(lastId && { followingUserId: { $gt: lastId } })
-    };
-
-    return await FollowModel.aggregate([
-        { $match: query },
-        { $sort: { followingUserId: 1 } },
-        {
-            $lookup: {
-                from: "profiles",
-                localField: "followingUserId",
-                foreignField: "_id",
-                as: "followers",
-                pipeline: [
-                    {
-                        $project: {
-                            username: 1,
-                            fullName: 1,
-                            profilePic: 1
-                        }
-                    }
-                ]
-            }
-        },
-        { $unwind: { path: "$followers", preserveNullAndEmptyArrays: true } },
-        { $replaceRoot: { newRoot: "$followers" } },
-        { $limit: 20 }
-    ]);
-}
-
-export const editProfile = async (userId: string, dto: EditProfileDto) => {
-    const result = await ProfileModel.updateOne(
-        { _id: userId },
-        dto
-    );
-
-    if (result.modifiedCount != 1) {
-        throw new createHttpError.NotFound("Profile not found");
+    
+        if (result.modifiedCount != 1) {
+            throw new createHttpError.NotFound("Profile not found");
+        }
+    }
+    
+    export const getInteractionRules = async (userId: Types.ObjectId): Promise<ProfileInteractionRules> => {
+        const rules = await ProfileRepository.queryInteractionRules(userId);
+    
+        if (!rules) {
+            throw new createHttpError.NotFound("Profile not found.");
+        }
+    
+        return rules;
+    }
+    
+    export const isProfilePrivate = async (userId: Types.ObjectId): Promise<void> => {
+        const rules = await getInteractionRules(userId);
+    
+        if (rules.visibility == ProfileVisibility.PRIVATE) {
+            throw new createHttpError.Forbidden("This profile is private.");
+        }
     }
 }

@@ -1,119 +1,144 @@
 import { RequestHandler } from "express";
-import { editProfile, getFollowers, getFollowings, getProfileByUsername, getProfilePage } from "../services/profile.service";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
 import { Types } from "mongoose";
 import { areUsersBlocked } from "../services/block.service";
-import { isProfilePrivate } from "../services/interaction-rules.service";
 import { profileProducer } from "../producers/profile.producer";
 import { deleteFile, EditProfileMsg, idSchema, ProfileTopics, saveFile } from "@ig-clone/common";
 import { editProfileSchema } from "../joi-schemas/edit-profile.schema";
 import { ProfileModel } from "../models/profile.model";
+import { ProfileService } from "../services/profile.service";
+import { ProfileRepository } from "../repositories/profile.repository";
 
-export const handleGetProfileById: RequestHandler = async (req, res) => {
-    const currUserId: string = req.currentUser!.userId;
-    const queriedUserId: string = req.params.id;
+export namespace ProfileController {
+    export const getProfileById: RequestHandler = async (req, res) => {
+        const currUserId: string = req.currentUser!.userId;
+        const queriedUserId: string = req.params.id;
 
-    const profile = await getProfileByUsername(new Types.ObjectId(currUserId), new Types.ObjectId(queriedUserId));
+        const profile = await ProfileService.getProfileIfNotBlocked(new Types.ObjectId(currUserId), new Types.ObjectId(queriedUserId));
 
-    res
-        .status(200)
-        .json(profile);
-}
-
-export const handleSearchProfiles: RequestHandler = async (req, res): Promise<void> => {
-    const lastId: string | undefined = req.params.lastId;
-    const pattern: string = req.params.pattern.replaceAll("+", " ");
-    const limit: number = Number(req.params.limit);
-    const currUserId: string = req.currentUser!.userId;
-
-    await idSchema.validateAsync(lastId);
-
-    const results: ProfileSearch[] = await getProfilePage(new Types.ObjectId(currUserId), pattern, limit, lastId);
-
-    res
-        .status(200)
-        .json(results);
-}
-
-export const handleGetFollowers: RequestHandler = async (req, res): Promise<void> => {
-    const userId: string = req.currentUser!.userId;
-    const profileId: string = req.params.id;
-    const lastId: string = req.params.lastId;
-
-    await idSchema.validateAsync(lastId);
-
-    if (userId != profileId) {
-        await areUsersBlocked(userId, profileId);
-        await isProfilePrivate(profileId);
+        res
+            .status(200)
+            .json(profile);
     }
 
-    const followers = await getFollowers(userId, lastId);
+    export const searchProfiles: RequestHandler = async (req, res): Promise<void> => {
+        const lastId: string | undefined = req.params.lastId;
+        const pattern: string = req.params.pattern.replaceAll("+", " ");
+        const limit: number = Number(req.params.limit);
+        const currUserId: string = req.currentUser!.userId;
 
-    res
-        .status(200)
-        .json(followers);
-}
+        await idSchema.validateAsync(lastId);
 
-export const handleGetFollowings: RequestHandler = async (req, res): Promise<void> => {
-    const userId: string = req.currentUser!.userId;
-    const profileId: string = req.params.id;
-    const lastId: string = req.params.lastId;
+        const results: ProfileSearch[] = await ProfileService.getProfilePage(new Types.ObjectId(currUserId), pattern, limit, lastId);
 
-    await idSchema.validateAsync(lastId);
-
-    if (userId != profileId) {
-        await areUsersBlocked(userId, profileId);
-        await isProfilePrivate(profileId);
+        res
+            .status(200)
+            .json(results);
     }
 
-    const followers = getFollowings(userId, lastId);
+    export const getFollowers: RequestHandler = async (req, res): Promise<void> => {
+        const userId: string = req.currentUser!.userId;
+        const profileId: string = req.params.id;
+        const lastId: string = req.params.lastId;
 
-    res
-        .status(200)
-        .json(followers);
-}
+        await idSchema.validateAsync(lastId);
 
-export const handleEditProfile: RequestHandler = async (req, res): Promise<void> => {
-    const userId: string = req.currentUser!.userId;
+        if (userId != profileId) {
+            await areUsersBlocked(userId, profileId);
+            await ProfileService.isProfilePrivate(profileId);
+        }
 
-    await editProfileSchema.validateAsync(req.body);
+        const followers = await ProfileRepository.queryFollowersPage(userId, lastId);
 
-    await editProfile(userId, req.body);
-
-    const msg: EditProfileMsg = {
-        id: userId,
-        ...req.body
+        res
+            .status(200)
+            .json(followers);
     }
 
-    await profileProducer.sendMsg(ProfileTopics.PROFILE_UPDATE, msg);
+    export const getFollowings: RequestHandler = async (req, res): Promise<void> => {
+        const userId: string = req.currentUser!.userId;
+        const profileId: string = req.params.id;
+        const lastId: string = req.params.lastId;
 
-    res
-        .status(204)
-        .send();
-}
+        await idSchema.validateAsync(lastId);
 
-export const handleEditProfilePic: RequestHandler = async (req, res): Promise<void> => {
-    const userId: string = req.currentUser!.userId;
+        if (userId != profileId) {
+            await areUsersBlocked(userId, profileId);
+            await ProfileService.isProfilePrivate(profileId);
+        }
 
-    const fileName: string = await saveFile(req.file!);
-    await ProfileModel.updateOne({ _id: userId }, { profilePic: fileName });
+        const followers = ProfileRepository.queryFollowingsPage(userId, lastId);
 
-    res
-        .status(200)
-        .json({
-            profilePic: fileName
-        });
-}
+        res
+            .status(200)
+            .json(followers);
+    }
 
-export const handleDeleteProfilePic: RequestHandler = async (req, res): Promise<void> => {
-    const userId: string = req.currentUser!.userId;
+    export const editProfile: RequestHandler = async (req, res): Promise<void> => {
+        const userId: string = req.currentUser!.userId;
 
-    const user = await ProfileModel.findById(userId, { profilePic: 1 });
-    const profilePic = user!.profilePic;
+        await editProfileSchema.validateAsync(req.body);
 
-    if (profilePic) await deleteFile(profilePic);
+        await ProfileService.editProfile(userId, req.body);
 
-    res
-        .status(204)
-        .send();
+        const msg: EditProfileMsg = {
+            id: userId,
+            ...req.body
+        }
+
+        await profileProducer.sendMsg(ProfileTopics.PROFILE_UPDATE, msg);
+
+        res
+            .status(204)
+            .send();
+    }
+
+    export const editProfilePic: RequestHandler = async (req, res): Promise<void> => {
+        const userId: string = req.currentUser!.userId;
+
+        const fileName: string = await saveFile(req.file!);
+        await ProfileModel.updateOne({ _id: userId }, { profilePic: fileName });
+
+        res
+            .status(200)
+            .json({
+                profilePic: fileName
+            });
+    }
+
+    export const deleteProfilePic: RequestHandler = async (req, res): Promise<void> => {
+        const userId: string = req.currentUser!.userId;
+
+        const user = await ProfileModel.findById(userId, { profilePic: 1 });
+        const profilePic = user!.profilePic;
+
+        if (profilePic) await deleteFile(profilePic);
+
+        res
+            .status(204)
+            .send();
+    }
+
+    export const getInteractionRules: RequestHandler = async (req, res): Promise<void> => {
+        const userId = req.currentUser!.userId;
+
+        const rules = ProfileService.getInteractionRules(userId);
+
+        res
+            .status(200)
+            .json(rules);
+    }
+
+    export const editInteractionRules: RequestHandler = async (req, res): Promise<void> => {
+        const userId = req.currentUser!.userId;
+
+        const updateRes = await ProfileModel.updateOne(
+            { _id: userId },
+            req.body
+        );
+
+        res
+            .status(204)
+            .send();
+    }
 }

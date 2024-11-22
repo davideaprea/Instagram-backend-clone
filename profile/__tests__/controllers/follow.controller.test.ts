@@ -5,7 +5,7 @@ import { app, baseRoute } from "../../src";
 import { FollowModel } from "../../src/models/follow.model";
 import { InteractionRuleModel } from "../../src/models/interaction-rule.model";
 import { BlockModel } from "../../src/models/block.model";
-import { ProfileVisibility } from "../../src/types/enums/profile-visibility.enum";
+import { ProfileVisibility } from "../../../common/src/types/profile-visibility.enum";
 import { createUser } from "../utils/create-user";
 
 let joeToken: string;

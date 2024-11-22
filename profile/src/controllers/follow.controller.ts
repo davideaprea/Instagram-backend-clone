@@ -1,35 +1,38 @@
 import { RequestHandler } from "express";
-import { acceptFollow, addFollowOrRequest, transUnfollow } from "../services/follow.service";
+import { FollowService } from "../services/follow.service";
+import { Types } from "mongoose";
 
-export const handleFollow: RequestHandler = async (req, res) => {
-    const userId: string = req.currentUser!.userId;
-    const followingUserId: string = req.params.userId;
+export namespace FollowController {
+    export const follow: RequestHandler = async (req, res) => {
+        const userId: string = req.currentUser!.userId;
+        const followingUserId: string = req.params.userId;
 
-    const followRes = await addFollowOrRequest({ userId, followingUserId });
+        const followRes = await FollowService.addFollowOrRequest({ userId, followingUserId });
 
-    res
-        .status(200)
-        .json(followRes);
-}
+        res
+            .status(200)
+            .json(followRes);
+    }
 
-export const handleAcceptFollow: RequestHandler = async (req, res) => {
-    const followingUserId: string = req.currentUser!.userId;
-    const userId: string = req.params.userId;
+    export const acceptFollow: RequestHandler = async (req, res) => {
+        const followingUserId: string = req.currentUser!.userId;
+        const userId: string = req.params.userId;
 
-    await acceptFollow({ userId, followingUserId });
+        await FollowService.acceptFollow({ userId, followingUserId });
 
-    res
-        .status(204)
-        .send();
-}
+        res
+            .status(204)
+            .send();
+    }
 
-export const handleUnfollow: RequestHandler = async (req, res) => {
-    const userId: string = req.currentUser!.userId;
-    const followingUserId: string = req.params.userId;
+    export const unfollow: RequestHandler = async (req, res) => {
+        const userId: string = req.currentUser!.userId;
+        const followingUserId: string = req.params.userId;
 
-    await transUnfollow({ userId, followingUserId });
+        await FollowService.transUnfollow({ userId, followingUserId });
 
-    res
-        .status(204)
-        .send();
+        res
+            .status(204)
+            .send();
+    }
 }

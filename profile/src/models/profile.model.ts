@@ -1,6 +1,8 @@
 import { Model, model, Schema } from "mongoose";
 import { ProfileSchemaNames } from "../types/enums/profile-schema-names.enum";
 import { Gender, Profile } from "@ig-clone/common";
+import { InteractionRule } from "@ig-clone/common/dist/types/interaction-rule.enum";
+import { ProfileVisibility } from "@ig-clone/common/dist/types/profile-visibility.enum";
 
 const profileSchema = new Schema<Profile, Model<Profile>>({
     followers: {
@@ -44,6 +46,26 @@ const profileSchema = new Schema<Profile, Model<Profile>>({
         immutable: true,
         required: true,
         default: Date.now()
+    },
+    interactionRules: {
+        tag: {
+            type: String,
+            required: true,
+            default: InteractionRule.EVERYONE,
+            enum: Object.values(InteractionRule)
+        },
+        mention: {
+            type: String,
+            required: true,
+            default: InteractionRule.EVERYONE,
+            enum: Object.values(InteractionRule)
+        },
+        visibility: {
+            type: String,
+            enum: Object.values(ProfileVisibility),
+            default: ProfileVisibility.PUBLIC,
+            required: true
+        }
     }
 });
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { handleDeleteProfilePic, handleEditProfile, handleEditProfilePic, handleGetFollowers, handleGetFollowings, handleGetProfileById, handleSearchProfiles } from "../controllers/profile.controller";
 import { idSchema } from "@ig-clone/common";
 import { multerConfig } from "../configs/multer.config";
+import { ProfileController } from "../controllers/profile.controller";
 
 export const profileRouter: Router = Router();
 
@@ -12,27 +12,27 @@ profileRouter.param("id", async (req, res, next) => {
 
 profileRouter
     .route("/users")
-    .patch(handleEditProfile);
+    .patch(ProfileController.editProfile);
 
 profileRouter
     .route("/users/profilePics")
     .patch(
         multerConfig.single("profilePic"),
-        handleEditProfilePic
+        ProfileController.editProfilePic
     )
-    .delete(handleDeleteProfilePic);
+    .delete(ProfileController.deleteProfilePic);
 
 profileRouter
     .route("/users/:id")
-    .get(handleGetProfileById);
+    .get(ProfileController.getProfileById);
 
 profileRouter
     .route("/users/:id/followers/:lastId?")
-    .get(handleGetFollowers);
+    .get(ProfileController.getFollowers);
 
 profileRouter
     .route("/users/:id/followings/:lastId?")
-    .get(handleGetFollowings);
+    .get(ProfileController.getFollowings);
 
 /* profileRouter
 .route("/users/:pattern")
