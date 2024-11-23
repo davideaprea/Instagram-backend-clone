@@ -9,33 +9,35 @@ import { generateJwt } from "./jwt-manager.service";
 import { Error } from "mongoose";
 import { AuthResponse } from "../types/auth-response.type";
 
-export const register = async (registerDto: User): Promise<AuthResponse> => {
-    const user = new UserModel(registerDto);
+export namespace AuthService {
+    export const register = async (registerDto: User): Promise<AuthResponse> => {
+        const user = new UserModel(registerDto);
 
-    const err: Error.ValidationError | null = user.validateSync();
+        const err: Error.ValidationError | null = user.validateSync();
 
-    if (err) throw err;
+        if (err) throw err;
 
-    user.password = hashSync(user.password, 12);
+        user.password = hashSync(user.password, 12);
 
-    const { username, fullName, id } = await user.save({ validateBeforeSave: false });
+        const { username, fullName, id } = await user.save({ validateBeforeSave: false });
 
-    return { username, fullName, id };
-}
-
-export const login = async (loginDto: LoginDto): Promise<LoginResponse> => {
-    const userDoc: UserDocument | null = await UserModel.findOne({ email: loginDto.email }).populate("password");
-
-    if (
-        !userDoc ||
-        !compareSync(loginDto.password, userDoc.password)
-    ) {
-        throw new createHttpError.BadRequest("Incorrect email or password.");
+        return { username, fullName, id };
     }
 
-    return {
-        username: userDoc.username,
-        fullName: userDoc.fullName,
-        jwt: generateJwt(userDoc.id)
-    };
+    export const login = async (loginDto: LoginDto): Promise<LoginResponse> => {
+        const userDoc: UserDocument | null = await UserModel.findOne({ email: loginDto.email }).populate("password");
+
+        if (
+            !userDoc ||
+            !compareSync(loginDto.password, userDoc.password)
+        ) {
+            throw new createHttpError.BadRequest("Incorrect email or password.");
+        }
+
+        return {
+            username: userDoc.username,
+            fullName: userDoc.fullName,
+            jwt: generateJwt(userDoc.id)
+        };
+    }
 }
