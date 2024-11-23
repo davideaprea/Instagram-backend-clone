@@ -1,4 +1,4 @@
-import { ClientSession, Types } from "mongoose";
+import { ClientSession } from "mongoose";
 import { FollowIds } from "../types/custom-types/follow-ids.type";
 import { FollowModel } from "../models/follow.model";
 import { Follow } from "../types/custom-types/follow.type";
@@ -52,12 +52,12 @@ export namespace FollowRepository {
         return follow;
     }
 
-    export const removeMutualFollow = async (firstUserId: Types.ObjectId, secondUserId: Types.ObjectId, session: ClientSession): Promise<number> => {
+    export const removeMutualFollow = async (ids: FollowIds, session: ClientSession): Promise<number> => {
         const deleteResult = await FollowModel.deleteMany(
             {
                 $or: [
-                    { userId: firstUserId, followingUserId: secondUserId },
-                    { userId: secondUserId, followingUserId: firstUserId }
+                    { userId: ids.userId, followingUserId: ids.followingUserId },
+                    { userId: ids.followingUserId, followingUserId: ids.userId }
                 ]
             },
             { session }

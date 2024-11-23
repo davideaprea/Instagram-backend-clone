@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { FollowService } from "../services/follow.service";
-import { Types } from "mongoose";
 
 export namespace FollowController {
     export const follow: RequestHandler = async (req, res) => {

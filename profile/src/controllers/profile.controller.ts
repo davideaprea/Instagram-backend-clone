@@ -1,13 +1,13 @@
 import { RequestHandler } from "express";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
 import { Types } from "mongoose";
-import { areUsersBlocked } from "../services/block.service";
 import { profileProducer } from "../producers/profile.producer";
 import { deleteFile, EditProfileMsg, idSchema, ProfileTopics, saveFile } from "@ig-clone/common";
 import { editProfileSchema } from "../joi-schemas/edit-profile.schema";
 import { ProfileModel } from "../models/profile.model";
 import { ProfileService } from "../services/profile.service";
 import { ProfileRepository } from "../repositories/profile.repository";
+import { BlockService } from "../services/block.service";
 
 export namespace ProfileController {
     export const getProfileById: RequestHandler = async (req, res) => {
@@ -44,7 +44,7 @@ export namespace ProfileController {
         await idSchema.validateAsync(lastId);
 
         if (userId != profileId) {
-            await areUsersBlocked(userId, profileId);
+            await BlockService.areUsersBlocked(userId, profileId);
             await ProfileService.isProfilePrivate(profileId);
         }
 
@@ -63,7 +63,7 @@ export namespace ProfileController {
         await idSchema.validateAsync(lastId);
 
         if (userId != profileId) {
-            await areUsersBlocked(userId, profileId);
+            await BlockService.areUsersBlocked(userId, profileId);
             await ProfileService.isProfilePrivate(profileId);
         }
 

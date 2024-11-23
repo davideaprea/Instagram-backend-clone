@@ -3,7 +3,6 @@ import { ProfileModel } from "../../src/models/profile.model";
 import request from "supertest";
 import { app, baseRoute } from "../../src";
 import { FollowModel } from "../../src/models/follow.model";
-import { InteractionRuleModel } from "../../src/models/interaction-rule.model";
 import { BlockModel } from "../../src/models/block.model";
 import { ProfileVisibility } from "../../../common/src/types/profile-visibility.enum";
 import { createUser } from "../utils/create-user";
@@ -42,7 +41,7 @@ describe(`POST ${baseRoute}/follows/:userId`, () => {
     });
 
     it("should create a follow request because the profile is private", async () => {
-        await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
+        await ProfileModel.updateOne({ _id: joeId }, { "interactionRules.visibility": ProfileVisibility.PRIVATE });
 
         const res = await request(app)
             .post(baseRoute + "/follows/" + joeId)
@@ -80,7 +79,7 @@ describe(`POST ${baseRoute}/follows/:userId`, () => {
 
 describe(`PATCH ${baseRoute}/follows/:userId`, () => {
     it("should accept a follow request", async () => {
-        await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
+        await ProfileModel.updateOne({ _id: joeId }, { "interactionRules.visibility": ProfileVisibility.PRIVATE });
 
         await request(app)
             .post(baseRoute + "/follows/" + joeId)
@@ -123,7 +122,7 @@ describe(`DELETE ${baseRoute}/follows/:userId`, () => {
     });
 
     it("should return 404 because the follow is still a request", async () => {
-        await InteractionRuleModel.updateOne({ userId: joeId }, { visibility: ProfileVisibility.PRIVATE });
+        await ProfileModel.updateOne({ _id: joeId }, { "interactionRules.visibility": ProfileVisibility.PRIVATE });
 
         await request(app)
             .post(baseRoute + "/follows/" + joeId)

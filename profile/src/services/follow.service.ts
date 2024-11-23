@@ -1,11 +1,12 @@
 import { transactionHandler } from "@ig-clone/common";
 import createHttpError from "http-errors";
-import { ClientSession, Types } from "mongoose";
-import { areUsersBlocked } from "./block.service";
+import { ClientSession } from "mongoose";
 import { FollowIds } from "../types/custom-types/follow-ids.type";
 import { ProfileService } from "./profile.service";
 import { FollowRepository } from "../repositories/follow.repository";
 import { ProfileRepository } from "../repositories/profile.repository";
+import { BlockService } from "./block.service";
+import { ProfileVisibility } from "@ig-clone/common/dist/types/profile-visibility.enum";
 
 export namespace FollowService {
     const updateFollowCounters = async (
@@ -30,9 +31,10 @@ export namespace FollowService {
     export const addFollowOrRequest = async (ids: FollowIds): Promise<{ isAccepted: boolean }> => {
         const { userId, followingUserId } = ids;
 
-        await areUsersBlocked(followingUserId, userId);
+        await BlockService.areUsersBlocked(followingUserId, userId);
+        const rules = await ProfileService.getInteractionRules(followingUserId);
 
-        if (!ProfileService.isProfilePrivate(followingUserId)) {
+        if (rules.visibility == ProfileVisibility.PUBLIC) {
             await follow(ids);
             return { isAccepted: true };
         }
@@ -49,7 +51,7 @@ export namespace FollowService {
             throw new createHttpError.NotFound("Follow relationship not found.")
         }
 
-        await updateFollowCounters(ids, session, 1);
+        await updateFollowCounters(ids, session, -1);
     }
 
     export const acceptFollow = async (ids: FollowIds): Promise<void> => {
@@ -64,14 +66,14 @@ export namespace FollowService {
         });
     }
 
-    export const removeMutualFollow = async (firstUserId: Types.ObjectId, secondUserId: Types.ObjectId, session: ClientSession) => {
-        const deletedCount: number = await FollowRepository.removeMutualFollow(firstUserId, secondUserId, session);
+    export const removeMutualFollow = async (ids: FollowIds, session: ClientSession) => {
+        const deletedCount: number = await FollowRepository.removeMutualFollow(ids, session);
 
         if (deletedCount != 2) {
             throw new createHttpError.NotFound("Profile not found.");
         }
 
-        const modifiedCount = await ProfileRepository.updateMutualCounters(firstUserId, secondUserId, session, -1);
+        const modifiedCount = await ProfileRepository.updateMutualCounters(ids.userId, ids.followingUserId, session, -1);
 
         if (modifiedCount != 2) {
             throw new createHttpError.NotFound("Profile not found.");

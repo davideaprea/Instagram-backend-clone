@@ -1,8 +1,8 @@
-import { ObjectId } from "mongoose";
+import { Schema } from "mongoose";
 
 export type Follow = {
-    readonly userId: ObjectId,
-    readonly followingUserId: ObjectId,
+    readonly userId: Schema.Types.ObjectId,
+    readonly followingUserId: Schema.Types.ObjectId,
     readonly time: number
     isAccepted: boolean
 };

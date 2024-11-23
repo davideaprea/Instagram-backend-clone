@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { handleBlockUser, handleGetBlockedUsers, handleUnblockUser } from "../controllers/block.controller";
 import { idSchema } from "@ig-clone/common";
+import { BlockController } from "../controllers/block.controller";
 
 export const blockRouter: Router = Router();
 
@@ -11,9 +11,9 @@ blockRouter.param("blockedUserId", async (req, res, next) => {
 
 blockRouter
     .route("/blocks")
-    .get(handleGetBlockedUsers);
+    .get(BlockController.getBlockedUsers);
 
 blockRouter
     .route("/blocks/:blockedUserId")
-    .post(handleBlockUser)
-    .delete(handleUnblockUser);
+    .post(BlockController.blockUser)
+    .delete(BlockController.unblockUser);

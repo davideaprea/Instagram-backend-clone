@@ -1,7 +1,7 @@
 import { Consumer } from "kafkajs";
 import { AuthEvents, AuthTopics, KafkaConsumer } from "@ig-clone/common";
-import { createProfile } from "../services/profile.service";
 import { kafkaClient } from "../configs/kafka-client.config";
+import { ProfileService } from "../services/profile.service";
 
 const consumer: Consumer = kafkaClient.consumer({
     groupId: "profile-group",
@@ -12,6 +12,6 @@ const consumer: Consumer = kafkaClient.consumer({
 export const authConsumer = new KafkaConsumer<AuthEvents>(
     consumer,
     {
-        [AuthTopics.USER_CREATE]: createProfile
+        [AuthTopics.USER_CREATE]: ProfileService.createProfile
     }
 );

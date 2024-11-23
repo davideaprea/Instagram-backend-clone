@@ -145,7 +145,7 @@ export namespace ProfileRepository {
         ]);
     }
 
-    export const queryInteractionRules = async (userId: Types.ObjectId): Promise<ProfileInteractionRules | undefined> => {
+    export const queryInteractionRules = async (userId: string): Promise<ProfileInteractionRules | undefined> => {
         const profile = await ProfileModel.findById(userId, { interactionRules: 1, _id: 0 });
 
         return profile?.interactionRules;
@@ -177,8 +177,8 @@ export namespace ProfileRepository {
     }
 
     export const updateMutualCounters = async (
-        firstUserId: Types.ObjectId,
-        secondUserId: Types.ObjectId,
+        firstUserId: string,
+        secondUserId: string,
         session: ClientSession,
         multiplier: 1 | -1
     ): Promise<number> => {

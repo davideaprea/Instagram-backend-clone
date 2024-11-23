@@ -8,9 +8,9 @@ const init = async (): Promise<void> => {
     await initMongoConnection();
 
     try {
-        await authConsumer.connect();
-
         await initKafkaTopics();
+        
+        await authConsumer.connect();
 
         await profileProducer.connect();
 

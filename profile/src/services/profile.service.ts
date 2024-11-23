@@ -74,7 +74,7 @@ export namespace ProfileService {
         }
     }
     
-    export const getInteractionRules = async (userId: Types.ObjectId): Promise<ProfileInteractionRules> => {
+    export const getInteractionRules = async (userId: string): Promise<ProfileInteractionRules> => {
         const rules = await ProfileRepository.queryInteractionRules(userId);
     
         if (!rules) {
@@ -84,7 +84,7 @@ export namespace ProfileService {
         return rules;
     }
     
-    export const isProfilePrivate = async (userId: Types.ObjectId): Promise<void> => {
+    export const isProfilePrivate = async (userId: string): Promise<void> => {
         const rules = await getInteractionRules(userId);
     
         if (rules.visibility == ProfileVisibility.PRIVATE) {

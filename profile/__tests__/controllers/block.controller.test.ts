@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { ProfileModel } from "../../src/models/profile.model";
 import { app, baseRoute } from "../../src";
 import request from "supertest";

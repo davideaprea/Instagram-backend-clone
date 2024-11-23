@@ -1,52 +1,49 @@
 import { transactionHandler } from "@ig-clone/common"
 import { BlockModel } from "../models/block.model"
 import { FollowModel } from "../models/follow.model";
-import { removeMutualFollow, unfollow } from "./follow.service";
 import createHttpError from "http-errors";
-import { ClientSession, ObjectId } from "mongoose";
+import { ClientSession } from "mongoose";
+import { BlockRepository } from "../repositories/block.repository";
+import { FollowService } from "./follow.service";
+import { FollowIds } from "../types/custom-types/follow-ids.type";
 
-export const blockUser = async (userId: string, blockedUserId: string): Promise<void> => {
-    await transactionHandler(async session => {
-        await BlockModel.create(
-            [{ userId, blockedUserId }],
-            { session }
-        );
+export namespace BlockService {
+    export const blockUser = async (userId: string, blockedUserId: string): Promise<void> => {
+        await transactionHandler(async session => {
+            await BlockModel.create(
+                [{ userId, blockedUserId }],
+                { session }
+            );
 
-        const followsToDelete = await FollowModel.find(
-            {
-                $or: [
-                    { userId, followingUserId: blockedUserId },
-                    { userId: blockedUserId, followingUserId: userId }
-                ]
-            },
-            undefined,
-            { session }
-        );
+            const followsToDelete = await FollowModel.find(
+                {
+                    $or: [
+                        { userId, followingUserId: blockedUserId },
+                        { userId: blockedUserId, followingUserId: userId }
+                    ]
+                },
+                undefined,
+                { session }
+            );
 
-        const firstFollow = followsToDelete[0];
+            const firstFollow = followsToDelete[0];
+            const ids: FollowIds = {
+                userId: firstFollow?.userId?.toString(),
+                followingUserId: firstFollow?.followingUserId?.toString()
+            };
 
-        if (followsToDelete.length == 1) {
-            await unfollow(firstFollow, session);
+            if (followsToDelete.length == 1) {
+                await FollowService.unfollow(ids, session);
+            }
+            else if (followsToDelete.length == 2) {
+                await FollowService.removeMutualFollow(ids, session);
+            }
+        });
+    }
+
+    export const areUsersBlocked = async (userId: string, blockedUserId: string, session?: ClientSession): Promise<void> => {
+        if (await BlockRepository.areUsersBlocked(userId, blockedUserId, session)) {
+            throw new createHttpError.NotFound("Profile not found.");
         }
-        else if (followsToDelete.length == 2) {
-            await removeMutualFollow(firstFollow.userId, firstFollow.followingUserId, session);
-        }
-    });
-}
-
-export const areUsersBlocked = async (userId: string | ObjectId, blockedUserId: string | ObjectId, session?: ClientSession): Promise<void> => {
-    const block = await BlockModel.findOne(
-        {
-            $or: [
-                { userId, blockedUserId },
-                { userId: blockedUserId, blockedUserId: userId }
-            ]
-        },
-        undefined,
-        { session }
-    );
-
-    if (block) {
-        throw new createHttpError.NotFound("Profile not found.");
     }
 }
