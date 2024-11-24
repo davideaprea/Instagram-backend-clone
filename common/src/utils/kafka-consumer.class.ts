@@ -1,25 +1,17 @@
 import { Consumer } from "kafkajs";
 
-export class KafkaConsumer<T extends Record<string, {}>> {
+export abstract class KafkaConsumer {
     constructor(
-        private readonly consumer: Consumer,
-        private readonly eventHandlers: { [K in keyof T]: (msg: T[K]) => void | Promise<void> }
+        protected readonly consumer: Consumer
     ) { }
 
-    async connect(): Promise<void> {
-        await this.consumer.connect();
-        await this.consumer.subscribe({
-            topics: Object.keys(this.eventHandlers)
-        });
-        await this.consumer.run({
-            eachMessage: async ({ topic, message }) => {
-                if(!message.value) return;
-    
-                const stringMsgValue: string = message.value.toString();
-                const jsonMsgValue = JSON.parse(stringMsgValue);
-    
-                this.eventHandlers[topic]?.(jsonMsgValue);
-            },
-        });
+    protected parseMessage(message: Buffer) {
+        const stringMsgValue: string = message.toString();
+        const jsonMsgValue = JSON.parse(stringMsgValue);
+        return jsonMsgValue;
     }
+
+    abstract connect(): Promise<void>;
+
+    abstract run(): Promise<void>;
 }

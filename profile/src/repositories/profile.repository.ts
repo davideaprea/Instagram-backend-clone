@@ -6,6 +6,7 @@ import { Follow } from "../types/custom-types/follow.type";
 import { FollowModel } from "../models/follow.model";
 import { ProfileInteractionRules } from "@ig-clone/common/dist/types/profile-interaction-rules.type";
 import { FollowIds } from "../types/custom-types/follow-ids.type";
+import { ProfileDto } from "../types/custom-types/profile-dto.type";
 
 export namespace ProfileRepository {
     export const queryProfileIfNotBlocked = async (currUserId: Types.ObjectId, queriedUserId: Types.ObjectId): Promise<Profile | undefined> => {
@@ -198,5 +199,12 @@ export namespace ProfileRepository {
         ], { session });
 
         return updateResult.modifiedCount;
+    }
+
+    export const createProfiles = async (dtos: ProfileDto[]): Promise<void> => {
+        await ProfileModel.insertMany(
+            { dtos },
+            { ordered: false }
+        );
     }
 }

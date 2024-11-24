@@ -49,20 +49,6 @@ export namespace ProfileService {
         return profile;
     }
     
-    export const createProfile = async (dto: ProfileDto) => {
-        await transactionHandler(async session => {
-            const { id, fullName, username } = dto;
-    
-            await ProfileModel.create(
-                [{
-                    _id: id,
-                    fullName,
-                    username
-                }],
-                { session });
-        });
-    }
-    
     export const editProfile = async (userId: string, dto: EditProfileDto) => {
         const result = await ProfileModel.updateOne(
             { _id: userId },

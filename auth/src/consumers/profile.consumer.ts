@@ -1,4 +1,4 @@
-import { KafkaConsumer, ProfileEvents, ProfileTopics } from "@ig-clone/common";
+import { KafkaMessageConsumer, ProfileEvents, ProfileTopics } from "@ig-clone/common";
 import { Consumer } from "kafkajs";
 import { kafka } from "../configs/kafka.config";
 import { UserModel } from "../models/user.model";
@@ -9,7 +9,7 @@ const consumer: Consumer = kafka.consumer({
     allowAutoTopicCreation: false
 });
 
-export const profileConsumer = new KafkaConsumer<ProfileEvents>(
+export const profileConsumer = new KafkaMessageConsumer<ProfileEvents>(
     consumer,
     {
         [ProfileTopics.PROFILE_UPDATE]: async msg => {

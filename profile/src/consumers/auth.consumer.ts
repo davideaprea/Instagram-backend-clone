@@ -1,7 +1,9 @@
 import { Consumer } from "kafkajs";
-import { AuthEvents, AuthTopics, KafkaConsumer } from "@ig-clone/common";
+import { AuthEvents, AuthTopics, KafkaBatchConsumer } from "@ig-clone/common";
 import { kafkaClient } from "../configs/kafka-client.config";
-import { ProfileService } from "../services/profile.service";
+import { ProfileDto } from "../types/custom-types/profile-dto.type";
+import { Types } from "mongoose";
+import { ProfileRepository } from "../repositories/profile.repository";
 
 const consumer: Consumer = kafkaClient.consumer({
     groupId: "profile-group",
@@ -9,9 +11,19 @@ const consumer: Consumer = kafkaClient.consumer({
     allowAutoTopicCreation: false
 });
 
-export const authConsumer = new KafkaConsumer<AuthEvents>(
+export const authConsumer = new KafkaBatchConsumer<AuthEvents>(
     consumer,
     {
-        [AuthTopics.USER_CREATE]: ProfileService.createProfile
+        [AuthTopics.USER_CREATE]: async users => {
+            const dtos: ProfileDto[] = users.map(user => {
+                return {
+                    _id: new Types.ObjectId(user.id),
+                    username: user.username,
+                    fullName: user.fullName
+                }
+            });
+
+            await ProfileRepository.createProfiles(dtos);
+        }
     }
 );
