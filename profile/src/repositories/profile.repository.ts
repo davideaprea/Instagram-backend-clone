@@ -203,7 +203,7 @@ export namespace ProfileRepository {
 
     export const createProfiles = async (dtos: ProfileDto[]): Promise<void> => {
         await ProfileModel.insertMany(
-            { dtos },
+            dtos,
             { ordered: false }
         );
     }

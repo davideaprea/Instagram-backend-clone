@@ -8,9 +8,10 @@ const init = async (): Promise<void> => {
     await initMongoConnection();
 
     try {
-        await profileConsumer.connect();
-
         await initKafkaTopics();
+
+        await profileConsumer.connect();
+        await profileConsumer.run();
         
         await authProducer.connect()
 

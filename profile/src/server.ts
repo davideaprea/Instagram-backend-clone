@@ -11,6 +11,7 @@ const init = async (): Promise<void> => {
         await initKafkaTopics();
         
         await authConsumer.connect();
+        await authConsumer.run();
 
         await profileProducer.connect();
 
