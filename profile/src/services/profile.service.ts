@@ -1,9 +1,8 @@
 import createHttpError from "http-errors";
 import { ProfileModel } from "../models/profile.model";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
-import { Profile, transactionHandler } from "@ig-clone/common";
+import { Profile } from "@ig-clone/common";
 import { ObjectId, Types } from "mongoose";
-import { ProfileDto } from "../types/custom-types/profile-dto.type";
 import { EditProfileDto } from "../types/custom-types/edit-profile-dto.type";
 import { ProfileInteractionRules } from "@ig-clone/common/dist/types/profile-interaction-rules.type";
 import { ProfileVisibility } from "@ig-clone/common/dist/types/profile-visibility.enum";

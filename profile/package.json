@@ -29,6 +29,7 @@
     "@faker-js/faker": "^9.0.3",
     "@ig-clone/common": "^1.7.0",
     "dotenv": "^16.4.5",
+    "etag": "^1.8.1",
     "express": "^4.21.0",
     "express-async-errors": "^3.1.1",
     "http-errors": "^2.0.0",
@@ -40,6 +41,7 @@
     "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {
+    "@types/etag": "^1.8.3",
     "@types/express": "^5.0.0",
     "@types/http-errors": "^2.0.4",
     "@types/jest": "^29.5.14",

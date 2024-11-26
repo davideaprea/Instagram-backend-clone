@@ -8,6 +8,7 @@ import { ProfileModel } from "../models/profile.model";
 import { ProfileService } from "../services/profile.service";
 import { ProfileRepository } from "../repositories/profile.repository";
 import { BlockService } from "../services/block.service";
+import etag from "etag";
 
 export namespace ProfileController {
     export const getProfileById: RequestHandler = async (req, res) => {
@@ -15,8 +16,18 @@ export namespace ProfileController {
         const queriedUserId: string = req.params.id;
 
         const profile = await ProfileService.getProfileIfNotBlocked(new Types.ObjectId(currUserId), new Types.ObjectId(queriedUserId));
+        const profileEtag: string = etag(JSON.stringify(profile));
+
+        if(req.headers["if-none-match"] == profileEtag) {
+            res.status(304).end();
+            return;
+        }
 
         res
+            .set({
+                "Cache-Control": "public, no-cache",
+                "ETag": profileEtag
+            })
             .status(200)
             .json(profile);
     }
@@ -32,6 +43,7 @@ export namespace ProfileController {
         const results: ProfileSearch[] = await ProfileService.getProfilePage(new Types.ObjectId(currUserId), pattern, limit, lastId);
 
         res
+            .set({"Cache-Control": "private, max-age=300"})
             .status(200)
             .json(results);
     }
