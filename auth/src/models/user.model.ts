@@ -1,38 +1,27 @@
-import { model, Schema } from "mongoose";;
+import { model, Schema } from "mongoose";
 import { User } from "../types/user.type";
 import { AuthSchemaNames } from "../types/auth-schema-names.enum";
 import { UserMongoModel } from "../types/user-mongo-model.type";
-import { EMAIL_REGEX, PSW_REGEX } from "../constants/regexes";
-import { NAME_REGEX, USERNAME_REGEX } from "@ig-clone/common";
 
 const userSchema = new Schema<User, UserMongoModel>(
     {
         email: {
+            required: true,
             type: String,
-            trim: true,
-            required: [true, "Email is required."],
-            unique: true,
-            match: [EMAIL_REGEX, "The given email is not valid."]
+            unique: true
         },
         username: {
+            required: true,
             type: String,
-            required: [true, "The username is required."],
-            unique: true,
-            trim: true,
-            match: [USERNAME_REGEX, "The username is not valid."]
+            unique: true
         },
         password: {
             type: String,
-            trim: true,
-            required: [true, "Password is required for registration."],
-            match: [PSW_REGEX, "Password must be at least 8 characters long, include a number, a special character, an uppercase character and a lowercase character."],
             select: false
         },
         fullName: {
-            type: String,
-            trim: true,
-            required: [true, "Full name is required."],
-            match: [NAME_REGEX, "The name is not valid."]
+            required: true,
+            type: String
         }
     },
     {

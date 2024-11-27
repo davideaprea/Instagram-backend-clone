@@ -31,6 +31,11 @@ spec:
                 configMapKeyRef:
                   name: kafka-config-map
                   key: url
+            - name: HOST_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config-map
+                  key: host-name
 ---
 apiVersion: v1
 kind: Service
