@@ -3,4 +3,7 @@ kind: ConfigMap
 metadata:
   name: profile-mongo-config-map
 data:
-  url: mongodb://profile-mongo-cluster-ip:27017/profile
+  host: profile-mongo-svc.default.svc.cluster.local:27017
+  db-name: profile
+  member-base-name: profile-mongo
+  replset-name: profile-mongo
