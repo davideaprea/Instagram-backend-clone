@@ -2,9 +2,14 @@ import { connect } from "mongoose";
 
 export const initMongoConnection = async (): Promise<void> => {
     const env = process.env;
+    const urls: string[] = [];
+
+    for(let i = 0; i < 3; i++) {
+        urls.push(`${env.MEMBER_BASE_NAME}-${i}.${env.MONGO_HOST}`);
+    }
 
     try {
-        await connect(`mongodb://user-admin:my-secure-password@auth-mongo-0.auth-mongo-svc.default.svc.cluster.local:27017,auth-mongo-1.auth-mongo-svc.default.svc.cluster.local:27017,auth-mongo-2.auth-mongo-svc.default.svc.cluster.local:27017`, {
+        await connect(`mongodb://user-admin:my-secure-password@${urls.join(",")}`, {
             dbName: env.DB_NAME,
             replicaSet: env.REPLSET_NAME,
             serverSelectionTimeoutMS: 90000
