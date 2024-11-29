@@ -23,4 +23,7 @@ googleStrategyInit();
 app.use(baseRoute, authRouter);
 app.use(baseRoute + "/google", googleOAuthRouter);
 
-app.use(handleError);
+app.use((err, req, res, next) => {
+    console.log("AUTH ERR", err)
+    next(err)
+}, handleError);

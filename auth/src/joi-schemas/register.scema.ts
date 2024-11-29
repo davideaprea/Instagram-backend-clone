@@ -4,7 +4,7 @@ import { NAME_REGEX, USERNAME_REGEX } from "@ig-clone/common";
 import { EMAIL_REGEX, PSW_REGEX } from "../constants/regexes";
 
 const getValidator = (regex: RegExp, msg: string) => {
-    return Joi.string().pattern(regex).message(msg).required().trim()
+    return Joi.string().pattern(regex).required().trim().message(msg)
 }
 
 export const registerSchema = Joi.object<User>({

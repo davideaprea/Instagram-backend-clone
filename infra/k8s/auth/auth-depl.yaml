@@ -21,11 +21,26 @@ spec:
                 secretKeyRef:
                   name: jwt-secret
                   key: JWT_SECRET
-            - name: LOCAL_DB_URL
+            - name: MONGO_HOST
               valueFrom:
                 configMapKeyRef:
                   name: auth-mongo-config-map
-                  key: url
+                  key: host
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-mongo-config-map
+                  key: db-name
+            - name: MEMBER_BASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-mongo-config-map
+                  key: member-base-name
+            - name: REPLSET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-mongo-config-map
+                  key: replset-name
             - name: LOCAL_KAFKA_URL
               valueFrom:
                 configMapKeyRef:

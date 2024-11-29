@@ -3,4 +3,7 @@ kind: ConfigMap
 metadata:
   name: auth-mongo-config-map
 data:
-  url: mongodb://auth-mongo-cluster-ip:27017/auth
+  host: auth-mongo-svc.default.svc.cluster.local:27017
+  db-name: auth
+  member-base-name: auth-mongo
+  replset-name: auth-mongo
