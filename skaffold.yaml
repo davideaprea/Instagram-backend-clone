@@ -23,7 +23,3 @@ build:
         manual:
           - dest: "."
             src: "src/**/*.ts"
-    - image: instagram-clone/profile-mongo
-      context: profile-mongo
-      docker:
-        dockerfile: Dockerfile

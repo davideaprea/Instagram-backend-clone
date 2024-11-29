@@ -5,8 +5,7 @@ import { UserModel } from "../models/user.model";
 
 const consumer: Consumer = kafka.consumer({
     groupId: "auth-group",
-    sessionTimeout: 30000,
-    allowAutoTopicCreation: false
+    sessionTimeout: 30000
 });
 
 export const profileConsumer = new KafkaMessageConsumer<ProfileEvents>(

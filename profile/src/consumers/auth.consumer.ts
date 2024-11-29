@@ -8,8 +8,7 @@ import { ProfileService } from "../services/profile.service";
 
 const consumer: Consumer = kafkaClient.consumer({
     groupId: "profile-group",
-    sessionTimeout: 30000,
-    allowAutoTopicCreation: false
+    sessionTimeout: 30000
 });
 
 export const authConsumer = new KafkaBatchConsumer<AuthEvents>(
