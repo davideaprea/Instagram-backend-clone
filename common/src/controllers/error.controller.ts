@@ -29,7 +29,7 @@ export const handleError = (err: unknown, req: Request, res: Response, next: Nex
     }
     else if(err instanceof Joi.ValidationError) {
         status = 400;
-        messages = [err.message];
+        messages = err.details.map(e => e.message);
     }
 
     res

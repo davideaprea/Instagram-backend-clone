@@ -11,11 +11,11 @@ export namespace UserRepository {
     }
 
     export const createUser = async (dto: User): Promise<UserDocument> => {
-        const res = await UserModel.create(dto, {
-            w: "majority"
-        });
+        const user = new UserModel(dto);
 
-        return res[0];
+        await user.save({ w: "majority" });
+
+        return user;
     }
 
     export const getUserByEmail = async (email: string): Promise<UserDocument | null> => {

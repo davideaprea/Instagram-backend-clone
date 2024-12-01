@@ -3,8 +3,16 @@ import { User } from "../types/user.type";
 import { NAME_REGEX, USERNAME_REGEX } from "@ig-clone/common";
 import { EMAIL_REGEX, PSW_REGEX } from "../constants/regexes";
 
-const getValidator = (regex: RegExp, msg: string) => {
-    return Joi.string().pattern(regex).required().trim().message(msg)
+const getValidator = (regex: RegExp, regexMsg: string) => {
+    return Joi
+        .string()
+        .pattern(regex)
+        .required()
+        .trim()
+        .messages({
+            "string.empty": "Mandatory field.",
+            "string.pattern.base": regexMsg
+        });
 }
 
 export const registerSchema = Joi.object<User>({

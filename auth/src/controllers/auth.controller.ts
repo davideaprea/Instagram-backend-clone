@@ -10,7 +10,7 @@ import { UserRepository } from "../repositories/user.repository";
 
 export namespace AuthController {
     export const register: RequestHandler = async (req, res): Promise<void> => {
-        await registerSchema.validateAsync(req.body);
+        await registerSchema.validateAsync(req.body, { abortEarly: false });
 
         const authRes: AuthResponse = await AuthService.register(req.body);
 
@@ -36,7 +36,7 @@ export namespace AuthController {
         const userId: string = req.currentUser!.userId;
 
         await UserRepository.deleteUser(userId);
-        
+
         await authProducer.sendMsg(AuthTopics.USER_DELETE, userId);
 
         res
