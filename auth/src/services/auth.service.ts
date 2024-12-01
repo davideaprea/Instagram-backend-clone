@@ -1,35 +1,29 @@
 import { compareSync, hashSync } from "bcrypt";
-import { UserModel } from "../models/user.model";
 import { LoginDto } from "../types/login-dto.type";
 import { UserDocument } from "../types/user-document.type";
 import { User } from "../types/user.type";
 import createHttpError from "http-errors";
 import { LoginResponse } from "../types/login-response.type";
 import { generateJwt } from "./jwt-manager.service";
-import { Error } from "mongoose";
 import { AuthResponse } from "../types/auth-response.type";
+import { UserRepository } from "../repositories/user.repository";
 
 export namespace AuthService {
-    export const register = async (registerDto: User): Promise<AuthResponse> => {
-        const user = new UserModel(registerDto);
+    export const register = async (dto: User): Promise<AuthResponse> => {
+        dto.password = hashSync(dto.password, 12);
 
-        const err: Error.ValidationError | null = user.validateSync();
-
-        if (err) throw err;
-
-        user.password = hashSync(user.password, 12);
-
-        const { username, fullName, id } = await user.save({ validateBeforeSave: false });
+        const { username, fullName, id } = await UserRepository.createUser(dto);
 
         return { username, fullName, id };
     }
 
-    export const login = async (loginDto: LoginDto): Promise<LoginResponse> => {
-        const userDoc: UserDocument | null = await UserModel.findOne({ email: loginDto.email }).populate("password");
+    export const login = async (dto: LoginDto): Promise<LoginResponse> => {
+        const { email, password } = dto;
+        const userDoc: UserDocument | null = await UserRepository.getUserByEmail(email);
 
         if (
             !userDoc ||
-            !compareSync(loginDto.password, userDoc.password)
+            !compareSync(password, userDoc.password)
         ) {
             throw new createHttpError.BadRequest("Incorrect email or password.");
         }

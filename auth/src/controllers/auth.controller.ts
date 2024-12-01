@@ -6,7 +6,7 @@ import { AuthResponse } from "../types/auth-response.type";
 import { AuthService } from "../services/auth.service";
 import { registerSchema } from "../joi-schemas/register.scema";
 import { loginSchema } from "../joi-schemas/login.schema";
-import { UserModel } from "../models/user.model";
+import { UserRepository } from "../repositories/user.repository";
 
 export namespace AuthController {
     export const register: RequestHandler = async (req, res): Promise<void> => {
@@ -35,7 +35,7 @@ export namespace AuthController {
     export const deleteAccount: RequestHandler = async (req, res): Promise<void> => {
         const userId: string = req.currentUser!.userId;
 
-        await UserModel.deleteOne({ _id: userId });
+        await UserRepository.deleteUser(userId);
         
         await authProducer.sendMsg(AuthTopics.USER_DELETE, userId);
 
