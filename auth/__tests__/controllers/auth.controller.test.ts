@@ -100,7 +100,7 @@ describe(`POST ${baseRoute}/register`, () => {
 });
 
 describe(`POST ${baseRoute}/login`, () => {
-    it.skip("should log in the user", async () => {
+    it("should log in the user", async () => {
         await request(app)
             .post(baseRoute + "/register")
             .send({
@@ -126,7 +126,7 @@ describe(`POST ${baseRoute}/login`, () => {
 
     });
 
-    it.skip("should return a 400 status with credentials not found message", async () => {
+    it("should return a 400 status with credentials not found message", async () => {
         const res = await request(app)
             .post(baseRoute + "/login")
             .send({
