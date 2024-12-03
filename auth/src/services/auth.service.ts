@@ -7,12 +7,13 @@ import { LoginResponse } from "../types/login-response.type";
 import { generateJwt } from "./jwt-manager.service";
 import { AuthResponse } from "../types/auth-response.type";
 import { UserRepository } from "../repositories/user.repository";
+import { UserModel } from "../models/user.model";
 
 export namespace AuthService {
     export const register = async (dto: User): Promise<AuthResponse> => {
         dto.password = hashSync(dto.password, 12);
 
-        const { username, fullName, id } = await UserRepository.createUser(dto);
+        const { username, fullName, id } = await UserModel.create(dto);
 
         return { username, fullName, id };
     }
