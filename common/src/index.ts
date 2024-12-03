@@ -9,6 +9,7 @@ export * from "./types/profile.type";
 export * from "./types/interaction-rule.enum";
 export * from "./types/profile-interaction-rules.type";
 export * from "./types/profile-visibility.enum";
+export * from "./types/block.type";
 
 export * from "./types/kafka/topics/auth-topics.enum";
 export * from "./types/kafka/topics/profile-topics.enum";
@@ -23,6 +24,8 @@ export * from "./utils/kafka-consumer.class";
 export * from "./utils/kafka-batch-consumer.class";
 export * from "./utils/kafka-message-consumer.class";
 export * from "./utils/kafka-producer.class";
+
+export * from "./models/block.model";
 
 export * from "./constants/regexes";
 
