@@ -16,13 +16,13 @@ export namespace FollowRepository {
     export const createRequest = async (ids: FollowIds): Promise<void> => {
         const { userId, followingUserId } = ids;
 
-        await FollowModel.create(
+        await new FollowModel(
             {
                 userId,
                 followingUserId,
                 isAccepted: false
             }
-        );
+        ).save({ w: 1 });
     }
 
     export const deleteFollow = async (ids: FollowIds, session: ClientSession): Promise<number> => {

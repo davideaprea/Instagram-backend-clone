@@ -20,7 +20,7 @@ beforeEach(async () => {
     ({ id: joeId, token: joeToken } = joe);
     ({ id: daveId, token: daveToken } = dave);
 
-    const profileDtos: ProfileDto[] = [];
+    const profileDtos = [];
 
     for (let i = 0; i < 100; i++) {
         profileDtos.push({

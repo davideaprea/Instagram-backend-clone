@@ -88,30 +88,32 @@ export namespace ProfileRepository {
             ...(lastId && { userId: { $gt: lastId } })
         };
 
-        return await FollowModel.aggregate([
-            { $match: query },
-            { $sort: { userId: 1 } },
-            {
-                $lookup: {
-                    from: "profiles",
-                    localField: "userId",
-                    foreignField: "_id",
-                    as: "followers",
-                    pipeline: [
-                        {
-                            $project: {
-                                username: 1,
-                                fullName: 1,
-                                profilePic: 1
+        return await FollowModel.aggregate(
+            [
+                { $match: query },
+                { $sort: { userId: 1 } },
+                {
+                    $lookup: {
+                        from: "profiles",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "followers",
+                        pipeline: [
+                            {
+                                $project: {
+                                    username: 1,
+                                    fullName: 1,
+                                    profilePic: 1
+                                }
                             }
-                        }
-                    ]
-                }
-            },
-            { $unwind: { path: "$followers", preserveNullAndEmptyArrays: true } },
-            { $replaceRoot: { newRoot: "$followers" } },
-            { $limit: 20 }
-        ]);
+                        ]
+                    }
+                },
+                { $unwind: { path: "$followers", preserveNullAndEmptyArrays: true } },
+                { $replaceRoot: { newRoot: "$followers" } },
+                { $limit: 20 }
+            ],
+            { readConcern: { level: "local" } });
     }
 
     export const queryFollowingsPage = async (userId: string, lastId?: string): Promise<ProfileSearch[]> => {
@@ -120,30 +122,33 @@ export namespace ProfileRepository {
             ...(lastId && { followingUserId: { $gt: lastId } })
         };
 
-        return await FollowModel.aggregate([
-            { $match: query },
-            { $sort: { followingUserId: 1 } },
-            {
-                $lookup: {
-                    from: "profiles",
-                    localField: "followingUserId",
-                    foreignField: "_id",
-                    as: "followers",
-                    pipeline: [
-                        {
-                            $project: {
-                                username: 1,
-                                fullName: 1,
-                                profilePic: 1
+        return await FollowModel.aggregate(
+            [
+                { $match: query },
+                { $sort: { followingUserId: 1 } },
+                {
+                    $lookup: {
+                        from: "profiles",
+                        localField: "followingUserId",
+                        foreignField: "_id",
+                        as: "followers",
+                        pipeline: [
+                            {
+                                $project: {
+                                    username: 1,
+                                    fullName: 1,
+                                    profilePic: 1
+                                }
                             }
-                        }
-                    ]
-                }
-            },
-            { $unwind: { path: "$followers", preserveNullAndEmptyArrays: true } },
-            { $replaceRoot: { newRoot: "$followers" } },
-            { $limit: 20 }
-        ]);
+                        ]
+                    }
+                },
+                { $unwind: { path: "$followers", preserveNullAndEmptyArrays: true } },
+                { $replaceRoot: { newRoot: "$followers" } },
+                { $limit: 20 }
+            ],
+            { readConcern: { level: "local" } }
+        );
     }
 
     export const queryInteractionRules = async (userId: string): Promise<ProfileInteractionRules | undefined> => {

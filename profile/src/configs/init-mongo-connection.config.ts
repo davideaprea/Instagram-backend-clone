@@ -12,7 +12,11 @@ export const initMongoConnection = async (): Promise<void> => {
         await connect(`mongodb://user-admin:my-secure-password@${urls.join(",")}`, {
             dbName: env.DB_NAME,
             replicaSet: env.REPLSET_NAME,
-            serverSelectionTimeoutMS: 90000
+            serverSelectionTimeoutMS: 90000,
+            writeConcern: {
+                w: "majority"
+            },
+            readConcern: "majority"
         });
 
         console.log("Successully connected to the database.");
