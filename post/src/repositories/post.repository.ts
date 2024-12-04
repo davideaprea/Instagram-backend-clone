@@ -9,21 +9,24 @@ export namespace PostRepository {
 
         if (lastPostId) filters._id = { $gt: lastPostId };
 
-        return await PostModel.aggregate([
-            { $match: filters },
-            {
-                $sort: {
-                    pinned: -1,
-                    _id: -1
+        return await PostModel.aggregate(
+            [
+                { $match: filters },
+                {
+                    $sort: {
+                        pinned: -1,
+                        _id: -1
+                    }
+                },
+                { $limit: limit },
+                {
+                    $project: {
+                        userId: 1,
+                        thumbnail: { $arrayElemAt: ["$medias", 0] }
+                    }
                 }
-            },
-            { $limit: limit },
-            {
-                $project: {
-                    userId: 1,
-                    thumbnail: { $arrayElemAt: ["$medias", 0] }
-                }
-            }
-        ]);
+            ],
+            { readConcern: "local" }
+        );
     }
 }
