@@ -7,10 +7,9 @@ import express, { Express, json } from 'express';
 import { handleError, verifyJwt } from '@ig-clone/common';
 import { UserModel } from './models/user.model';
 import { postRouter } from './routes/post.router';
+import { Routes } from './types/routes.enum';
 
 export const app: Express = express();
-
-export const baseRoute: string = "/v1/posts";
 
 app.use(json());
 
@@ -18,6 +17,6 @@ app.use(verifyJwt(async (id) => {
     return !!(await UserModel.findById(id));
 }));
 
-app.use(baseRoute, postRouter);
+app.use(Routes.BASE, postRouter);
 
 app.use(handleError);

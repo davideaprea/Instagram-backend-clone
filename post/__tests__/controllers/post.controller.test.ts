@@ -1,10 +1,11 @@
 import { sign } from "jsonwebtoken";
 import { UserModel } from "../../src/models/user.model";
-import { app, baseRoute } from "../../src";
+import { app } from "../../src";
 import request from "supertest";
 import { faker } from "@faker-js/faker";
 import { PostModel } from "../../src/models/post.model";
 import { Types } from "mongoose";
+import { Routes } from "../../src/types/routes.enum";
 
 jest.mock("../../src/producers/post.producer");
 jest.mock('@ig-clone/common', () => {
@@ -29,10 +30,10 @@ beforeEach(async () => {
     userId = user.id;
 });
 
-describe(`POST ${baseRoute}`, () => {
+describe(`POST ${Routes.BASE}`, () => {
     it("should create a post", async () => {
         const res = await request(app)
-            .post(baseRoute)
+            .post(Routes.BASE)
             .set("Authorization", `Bearer ${token}`)
             .field("caption[text]", "Caption")
             .field("caption[hashtags][0]", "hashtag1")
@@ -47,7 +48,7 @@ describe(`POST ${baseRoute}`, () => {
 
     it("should block post creation, with 404 status code", async () => {
         const res = await request(app)
-            .post(baseRoute)
+            .post(Routes.BASE)
             .set("Authorization", `Bearer ${token}`)
             .field("caption[text]", faker.string.alphanumeric(501))
             .field("caption[hashtags][0]", "hashtag1")
@@ -59,7 +60,7 @@ describe(`POST ${baseRoute}`, () => {
     });
 });
 
-describe(`DELETE ${baseRoute}/:id`, () => {
+describe(`DELETE ${Routes.BASE}/:id`, () => {
     it("should delete a post", async () => {
         const post = await PostModel.create({
             userId,
@@ -67,7 +68,7 @@ describe(`DELETE ${baseRoute}/:id`, () => {
         });
 
         const res = await request(app)
-            .delete(`${baseRoute}/${post.id}`)
+            .delete(`${Routes.BASE}/${post.id}`)
             .set("Authorization", `Bearer ${token}`);
 
         expect(res.status).toBe(204);
@@ -81,7 +82,7 @@ describe(`DELETE ${baseRoute}/:id`, () => {
         });
 
         const res = await request(app)
-            .delete(`${baseRoute}/${post.id}`)
+            .delete(`${Routes.BASE}/${post.id}`)
             .set("Authorization", `Bearer ${token}`);
 
         expect(res.status).toBe(404);
