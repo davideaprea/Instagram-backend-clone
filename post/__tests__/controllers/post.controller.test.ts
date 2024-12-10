@@ -28,9 +28,11 @@ describe(`POST ${baseRoute}`, () => {
         const res = await request(app)
             .post(baseRoute)
             .set("Authorization", `Bearer ${token}`)
-            .field({
-                "caption.text": "Caption"
-            })
+            .field("caption[text]", "Caption")
+            .field("caption[hashtags][0]", "hashtag1")
+            .field("caption[hashtags][1]", "hashtag2")
+            .field("caption[tags][0]", "507f1f77bcf86cd799439011")
+            .field("pinned", true)
             .attach("medias", Buffer.from("Image", "utf-8"), "img.jpeg")
             .attach("medias", Buffer.from("Video", "utf-8"), "video.jpeg")
 
