@@ -2,6 +2,7 @@ import { sign } from "jsonwebtoken";
 import { UserModel } from "../../src/models/user.model";
 import { app, baseRoute } from "../../src";
 import request from "supertest";
+import { faker } from "@faker-js/faker";
 
 jest.mock("../../src/producers/post.producer");
 jest.mock('@ig-clone/common', () => {
@@ -37,5 +38,18 @@ describe(`POST ${baseRoute}`, () => {
             .attach("medias", Buffer.from("Video", "utf-8"), "video.jpeg")
 
         expect(res.status).toBe(201);
+    });
+
+    it("should block post creation, with 404 status code", async () => {
+        const res = await request(app)
+            .post(baseRoute)
+            .set("Authorization", `Bearer ${token}`)
+            .field("caption[text]", faker.string.alphanumeric(501))
+            .field("caption[hashtags][0]", "hashtag1")
+            .field("caption[hashtags][1]", "hashtag2")
+            .field("caption[tags][0]", "507f1f77bcf86cd799439011")
+            .field("pinned", "asdf")
+
+        expect(res.status).toBe(400);
     });
 });

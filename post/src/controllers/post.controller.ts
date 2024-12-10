@@ -18,8 +18,7 @@ export namespace PostController {
 
     export const create: RequestHandler = async (req, res): Promise<void> => {
         req.body.medias = req.files;
-        console.log("BODY", req.body)
-        await createPostSchema.validateAsync(req.body);
+        await createPostSchema.validateAsync(req.body, { abortEarly: false });
 
         req.body.userId = new Types.ObjectId(req.currentUser!.userId);
 
