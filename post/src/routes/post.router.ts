@@ -10,3 +10,7 @@ postRouter
         multerConfig.array("medias"),
         PostController.create
     );
+
+postRouter
+    .route("/:id")
+    .delete(PostController.deletePost);

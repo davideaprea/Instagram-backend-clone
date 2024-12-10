@@ -3,15 +3,19 @@ import { UserModel } from "../../src/models/user.model";
 import { app, baseRoute } from "../../src";
 import request from "supertest";
 import { faker } from "@faker-js/faker";
+import { PostModel } from "../../src/models/post.model";
+import { Types } from "mongoose";
 
 jest.mock("../../src/producers/post.producer");
 jest.mock('@ig-clone/common', () => {
     return {
         ...jest.requireActual('@ig-clone/common'),
-        saveFile: jest.fn(() => Promise.resolve("http//image.url.com"))
+        saveFile: jest.fn(() => Promise.resolve("http//image.url.com")),
+        deleteFile: jest.fn()
     };
 });
 
+let userId: string;
 let token: string;
 
 beforeEach(async () => {
@@ -22,6 +26,7 @@ beforeEach(async () => {
     });
 
     token = sign({ userId: user.id }, process.env.JWT_SECRET!);
+    userId = user.id;
 });
 
 describe(`POST ${baseRoute}`, () => {
@@ -51,5 +56,35 @@ describe(`POST ${baseRoute}`, () => {
             .field("pinned", "asdf")
 
         expect(res.status).toBe(400);
+    });
+});
+
+describe(`DELETE ${baseRoute}/:id`, () => {
+    it("should delete a post", async () => {
+        const post = await PostModel.create({
+            userId,
+            medias: ["http//image.url.com"]
+        });
+
+        const res = await request(app)
+            .delete(`${baseRoute}/${post.id}`)
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(res.status).toBe(204);
+        expect(await PostModel.findById(post.id)).toBeNull();
+    });
+
+    it("should block post deletion because user doesn't own the resource", async () => {
+        const post = await PostModel.create({
+            userId: new Types.ObjectId(),
+            medias: ["http//image.url.com"]
+        });
+
+        const res = await request(app)
+            .delete(`${baseRoute}/${post.id}`)
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(res.status).toBe(404);
+        expect(await PostModel.findById(post.id)).toBeDefined();
     });
 });

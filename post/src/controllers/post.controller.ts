@@ -31,7 +31,7 @@ export namespace PostController {
 
     export const deletePost: RequestHandler = async (req, res) => {
         const userId: string = req.currentUser!.userId;
-        const postId: string = req.params.postId;
+        const postId: string = req.params.id;
 
         await PostService.deletePost(postId, userId);
 

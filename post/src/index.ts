@@ -20,7 +20,4 @@ app.use(verifyJwt(async (id) => {
 
 app.use(baseRoute, postRouter);
 
-app.use((err, req, res, next) => {
-    console.log("ERR", err);
-    next(err);
-}, handleError);
+app.use(handleError);
