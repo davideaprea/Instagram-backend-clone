@@ -1,5 +1,5 @@
+import { BlockModel } from "@ig-clone/common";
 import { ClientSession } from "mongoose";
-import { BlockModel } from "../models/block.model";
 
 export namespace BlockRepository {
     export const areUsersBlocked = async (userId: string, blockedUserId: string, session?: ClientSession): Promise<boolean> => {

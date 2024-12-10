@@ -1,6 +1,6 @@
 import { idSchema } from "@ig-clone/common";
 import Joi from "joi";
-import { InteractiveContent } from "../src/types/interactive-content.type";
+import { InteractiveContent } from "../types/interactive-content.type";
 
 export const interactveContentSchema = Joi.object<InteractiveContent>({
     text: Joi

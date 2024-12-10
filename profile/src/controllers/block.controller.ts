@@ -1,7 +1,6 @@
 import { RequestHandler } from "express";
-import { BlockModel } from "../models/block.model";
 import createHttpError from "http-errors";
-import { getPage } from "@ig-clone/common";
+import { BlockModel, getPage } from "@ig-clone/common";
 import { BlockService } from "../services/block.service";
 
 export namespace BlockController {

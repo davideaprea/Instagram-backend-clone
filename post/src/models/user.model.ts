@@ -1,7 +1,8 @@
 import { model, Model, Schema } from "mongoose";
 import { User } from "../types/user.type";
-import { InteractionRule, ProfileVisibility } from "@ig-clone/common";
 import { SchemaNames } from "../types/schema-names.enum";
+import { InteractionRule } from "@ig-clone/common/dist/types/interaction-rule.enum";
+import { ProfileVisibility } from "@ig-clone/common/dist/types/profile-visibility.enum";
 
 const userSchema = new Schema<User, Model<User>>({
     username: {

@@ -1,13 +1,12 @@
 import createHttpError from "http-errors";
 import { ProfileModel } from "../models/profile.model";
 import { ProfileSearch } from "../types/custom-types/profile-search.type";
-import { Profile, transactionHandler } from "@ig-clone/common";
+import { BlockModel, Profile, transactionHandler } from "@ig-clone/common";
 import { ObjectId, Types } from "mongoose";
 import { EditProfileDto } from "../types/custom-types/edit-profile-dto.type";
 import { ProfileInteractionRules } from "@ig-clone/common/dist/types/profile-interaction-rules.type";
 import { ProfileVisibility } from "@ig-clone/common/dist/types/profile-visibility.enum";
 import { ProfileRepository } from "../repositories/profile.repository";
-import { BlockModel } from "../models/block.model";
 import { FollowModel } from "../models/follow.model";
 
 export namespace ProfileService {

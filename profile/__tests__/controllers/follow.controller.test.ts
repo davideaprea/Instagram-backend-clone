@@ -3,9 +3,9 @@ import { ProfileModel } from "../../src/models/profile.model";
 import request from "supertest";
 import { app, baseRoute } from "../../src";
 import { FollowModel } from "../../src/models/follow.model";
-import { BlockModel } from "../../src/models/block.model";
 import { ProfileVisibility } from "../../../common/src/types/profile-visibility.enum";
 import { createUser } from "../utils/create-user";
+import { BlockModel } from "@ig-clone/common";
 
 let joeToken: string;
 let daveToken: string;

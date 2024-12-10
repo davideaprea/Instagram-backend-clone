@@ -6,10 +6,11 @@ import 'express-async-errors';
 import express, { Express, json } from 'express';
 import { handleError, verifyJwt } from '@ig-clone/common';
 import { UserModel } from './models/user.model';
+import { postRouter } from './routes/post.router';
 
 export const app: Express = express();
 
-export const baseRoute: string = "/v1/post";
+export const baseRoute: string = "/v1/posts";
 
 app.use(json());
 
@@ -17,4 +18,9 @@ app.use(verifyJwt(async (id) => {
     return !!(await UserModel.findById(id));
 }));
 
-app.use(handleError);
+app.use(baseRoute, postRouter);
+
+app.use((err, req, res, next) => {
+    console.log("ERR", err);
+    next(err);
+}, handleError);

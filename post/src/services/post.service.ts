@@ -19,15 +19,13 @@ export namespace PostService {
     }
 
     export const deletePost = async (id: string, userId: string) => {
-        const post = await PostModel.findById(id);
+        const post = await PostModel.findOneAndDelete({ _id: id, userId });
 
-        if(!post) {
+        if (!post) {
             throw new createHttpError.NotFound("Post not found.");
         }
 
-        await PostModel.deleteOne({ _id: id, userId });
-
-        for(const media of post.medias) {
+        for (const media of post.medias) {
             await deleteFile(media);
         }
 

@@ -1,6 +1,7 @@
 import Joi from "joi";
 
 export const mediaSchema = Joi.object({
+    fieldname: Joi.string(),
     originalname: Joi.string().required(),
     mimetype: Joi
         .string()
@@ -15,5 +16,7 @@ export const mediaSchema = Joi.object({
         .required()
         .messages({
             "number.max": "File size must not exceed 5 MB."
-        })
+        }),
+    encoding: Joi.string(),
+    buffer: Joi.binary()
 });

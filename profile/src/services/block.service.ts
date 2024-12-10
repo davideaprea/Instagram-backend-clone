@@ -1,5 +1,4 @@
-import { transactionHandler } from "@ig-clone/common"
-import { BlockModel } from "../models/block.model"
+import { BlockModel, transactionHandler } from "@ig-clone/common"
 import { FollowModel } from "../models/follow.model";
 import createHttpError from "http-errors";
 import { ClientSession } from "mongoose";
