@@ -1,44 +1,25 @@
 import { model, Model, Schema, Types } from "mongoose";
 import { Post } from "../types/post.type";
 import { SchemaNames } from "../types/schema-names.enum";
+import { interactiveContentSchemaDef } from "../schema-defs/interactive-content.schema-def";
+import { counterSchemaDef } from "../schema-defs/counter.schema-def";
+import { userInteractionSchemaDef } from "../schema-defs/user-interaction.schema-def";
 
 const postSchema = new Schema<Post, Model<Post>>({
-    userId: {
-        type: Types.ObjectId,
-        required: true,
-        immutable: true
-    },
+    ...userInteractionSchemaDef,
     allowComments: {
         type: Boolean,
         default: true
     },
-    comments: {
-        type: Number,
-        default: 0,
-        min: 0
-    },
-    likes: {
-        type: Number,
-        default: 0,
-        min: 0
-    },
-    caption: {
-        text: String,
-        tags: Array<Types.ObjectId>,
-        hashtags: Array<String>
-    },
+    comments: counterSchemaDef,
+    likes: counterSchemaDef,
+    caption: interactiveContentSchemaDef,
     medias: Array<String>,
     pinned: {
         type: Boolean,
         default: false
     },
-    tags: Array<Types.ObjectId>,
-    time: {
-        type: Number,
-        immutable: true,
-        required: true,
-        default: Date.now()
-    }
+    tags: Array<Types.ObjectId>
 });
 
 postSchema.index({ userId: 1, pinned: -1, _id: -1, });

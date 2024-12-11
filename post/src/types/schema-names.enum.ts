@@ -1,4 +1,5 @@
 export enum SchemaNames {
     USER = "User",
-    POST = "Post"
+    POST = "Post",
+    COMMENT = "Comment"
 }
