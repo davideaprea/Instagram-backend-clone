@@ -1,5 +1,6 @@
 export enum SchemaNames {
     USER = "User",
     POST = "Post",
-    COMMENT = "Comment"
+    COMMENT = "Comment",
+    REPLY = "Reply"
 }

@@ -2,7 +2,7 @@ import { idSchema } from "@ig-clone/common";
 import Joi from "joi";
 import { InteractiveContent } from "../types/interactive-content.type";
 
-export const interactveContentSchema = Joi.object<InteractiveContent>({
+export const interactiveContentSchema = Joi.object<InteractiveContent>({
     text: Joi
         .string()
         .max(500)
