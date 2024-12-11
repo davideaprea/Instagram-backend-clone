@@ -4,7 +4,7 @@ import { createReplySchema } from "../joi-schemas/create-reply.schema";
 
 export namespace ReplyController {
     export const create: RequestHandler = async (req, res): Promise<void> => {
-        await createReplySchema.validateAsync(req.body);
+        await createReplySchema.validateAsync(req.body, { abortEarly: false });
 
         req.body.userId = req.currentUser!.userId;
 

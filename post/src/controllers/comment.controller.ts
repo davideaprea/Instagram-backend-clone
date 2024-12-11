@@ -5,7 +5,7 @@ import { CommentModel } from "../models/comment.model";
 
 export namespace CommentController {
     export const create: RequestHandler = async (req, res): Promise<void> => {
-        await createCommentSchema.validateAsync(req.body);
+        await createCommentSchema.validateAsync(req.body, { abortEarly: false });
 
         req.body.userId = req.currentUser!.userId;
 

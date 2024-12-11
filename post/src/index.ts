@@ -8,6 +8,7 @@ import { handleError, verifyJwt } from '@ig-clone/common';
 import { UserModel } from './models/user.model';
 import { postRouter } from './routes/post.router';
 import { Routes } from './types/routes.enum';
+import { commentRouter } from './routes/comment.router';
 
 export const app: Express = express();
 
@@ -18,5 +19,10 @@ app.use(verifyJwt(async (id) => {
 }));
 
 app.use(Routes.BASE, postRouter);
+app.use(`${Routes.BASE}/${Routes.COMMENTS}`, commentRouter);
 
-app.use(handleError);
+app.use((err, req, res, next) => {
+    console.log("ERR", err);
+    next(err);
+},
+handleError);
