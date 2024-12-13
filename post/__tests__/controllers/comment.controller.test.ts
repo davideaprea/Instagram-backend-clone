@@ -29,7 +29,7 @@ beforeEach(async () => {
     postId = post.id;
 });
 
-describe.skip(`POST ${baseUrl}`, () => {
+describe(`POST ${baseUrl}`, () => {
     it("should create a comment", async () => {
         const res = await request(app)
             .post(baseUrl)
@@ -62,7 +62,7 @@ describe.skip(`POST ${baseUrl}`, () => {
     });
 });
 
-describe.skip(`DELETE ${baseUrl}/:id`, () => {
+describe(`DELETE ${baseUrl}/:id`, () => {
     it("should delete a comment", async () => {
         const createRes = await request(app)
             .post(baseUrl)

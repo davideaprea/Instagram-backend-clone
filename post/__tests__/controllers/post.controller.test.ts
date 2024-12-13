@@ -30,7 +30,7 @@ beforeEach(async () => {
     userId = user.id;
 });
 
-describe.skip(`POST ${Routes.BASE}`, () => {
+describe(`POST ${Routes.BASE}`, () => {
     it("should create a post", async () => {
         const res = await request(app)
             .post(Routes.BASE)
@@ -60,7 +60,7 @@ describe.skip(`POST ${Routes.BASE}`, () => {
     });
 });
 
-describe.skip(`DELETE ${Routes.BASE}/:id`, () => {
+describe(`DELETE ${Routes.BASE}/:id`, () => {
     it("should delete a post", async () => {
         const post = await PostModel.create({
             userId,
