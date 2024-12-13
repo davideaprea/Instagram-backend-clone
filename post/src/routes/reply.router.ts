@@ -6,3 +6,7 @@ export const replyRouter: Router = Router();
 replyRouter
     .route("/")
     .post(ReplyController.create);
+
+replyRouter
+    .route("/:id")
+    .delete(ReplyController.remove)

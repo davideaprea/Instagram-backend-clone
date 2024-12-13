@@ -7,7 +7,7 @@ import { PostModel } from "../models/post.model";
 
 export namespace ReplyService {
     export const create = async (dto: ReplyDto) => {
-        await transactionHandler(async session => {
+        return await transactionHandler(async session => {
             console.log("DTO", dto)
             const comment = await CommentModel.findOneAndUpdate(
                 { _id: dto.commentId },
@@ -25,7 +25,7 @@ export namespace ReplyService {
                 { session }
             );
 
-            await ReplyModel.create([dto], { session });
+            return (await ReplyModel.create([dto], { session }))[0];
         });
     }
 
@@ -37,8 +37,18 @@ export namespace ReplyService {
                 throw new createHttpError.NotFound("Reply not found.");
             }
 
+            const comment = await CommentModel.findOneAndUpdate(
+                { _id: deletedReply.commentId },
+                { $inc: { replies: -1 } },
+                { session }
+            );
+
+            if (!comment) {
+                throw new createHttpError.NotFound("Parent comment not found.");
+            }
+
             await PostModel.updateOne(
-                { _id: deletedReply._id },
+                { _id: comment.postId },
                 { $inc: { comments: -1 } },
                 { session }
             );
