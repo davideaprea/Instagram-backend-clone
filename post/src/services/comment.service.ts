@@ -7,13 +7,13 @@ import { ReplyModel } from "../models/reply.model";
 
 export namespace CommentService {
     export const create = async (dto: CommentDto) => {
-        await transactionHandler(async session => {
+        return await transactionHandler(async session => {
             await PostModel.updateOne(
                 { _id: dto.postId },
                 { $inc: { comments: 1 } },
                 { session }
             );
-            return await CommentModel.create([dto], { session });
+            return (await CommentModel.create([dto], { session }))[0];
         });
     }
 
@@ -28,7 +28,7 @@ export namespace CommentService {
             const replyDeleteRes = await ReplyModel.deleteMany({ commentId: id }, { session });
 
             await PostModel.updateOne(
-                { _id: deletedComment._id },
+                { _id: deletedComment.postId },
                 { $inc: { comments: -(replyDeleteRes.deletedCount + 1) } },
                 { session }
             );
