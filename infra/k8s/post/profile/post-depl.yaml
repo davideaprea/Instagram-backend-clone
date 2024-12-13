@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post
+  template:
+    metadata:
+      labels:
+        app: post
+    spec:
+      containers:
+        - name: post
+          image: instagram-clone/post
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_SECRET
+            - name: MONGO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: post-mongo-config-map
+                  key: host
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: post-mongo-config-map
+                  key: db-name
+            - name: MEMBER_BASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: post-mongo-config-map
+                  key: member-base-name
+            - name: REPLSET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: post-mongo-config-map
+                  key: replset-name
+            - name: LOCAL_KAFKA_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-config-map
+                  key: url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-cluster-ip
+spec:
+  selector:
+    app: post
+  ports:
+    - name: post
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

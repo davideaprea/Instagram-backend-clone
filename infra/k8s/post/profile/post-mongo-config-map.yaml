@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: post-mongo-config-map
+data:
+  host: post-mongo-svc.default.svc.cluster.local:27017
+  db-name: post
+  member-base-name: post-mongo
+  replset-name: post-mongo
