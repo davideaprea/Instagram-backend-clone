@@ -8,9 +8,10 @@ import { PostModel } from "../models/post.model";
 export namespace ReplyService {
     export const create = async (dto: ReplyDto) => {
         await transactionHandler(async session => {
+            console.log("DTO", dto)
             const comment = await CommentModel.findOneAndUpdate(
                 { _id: dto.commentId },
-                { replies: { $inc: 1 } },
+                { $inc: { replies: 1 } },
                 { session }
             );
 
@@ -20,7 +21,7 @@ export namespace ReplyService {
 
             await PostModel.updateOne(
                 { _id: comment.postId },
-                { comments: { $inc: 1 } },
+                { $inc: { comments: 1 } },
                 { session }
             );
 

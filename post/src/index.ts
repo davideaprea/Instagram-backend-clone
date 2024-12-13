@@ -9,6 +9,7 @@ import { UserModel } from './models/user.model';
 import { postRouter } from './routes/post.router';
 import { Routes } from './types/routes.enum';
 import { commentRouter } from './routes/comment.router';
+import { replyRouter } from './routes/reply.router';
 
 export const app: Express = express();
 
@@ -20,6 +21,7 @@ app.use(verifyJwt(async (id) => {
 
 app.use(Routes.BASE, postRouter);
 app.use(`${Routes.BASE}/${Routes.COMMENTS}`, commentRouter);
+app.use(`${Routes.BASE}/${Routes.REPLIES}`, replyRouter);
 
 app.use((err, req, res, next) => {
     console.log("ERR", err);

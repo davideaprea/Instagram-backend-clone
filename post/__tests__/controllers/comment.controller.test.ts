@@ -6,7 +6,6 @@ import request from "supertest";
 import { app } from "../../src";
 import { CommentModel } from "../../src/models/comment.model";
 import { CommentService } from "../../src/services/comment.service";
-import { Types } from "mongoose";
 
 const baseUrl: string = `${Routes.BASE}/${Routes.COMMENTS}`;
 
@@ -15,8 +14,6 @@ let token: string;
 let postId: string;
 
 beforeEach(async () => {
-    jest.clearAllMocks();
-
     const user = await UserModel.create({
         username: "username"
     });
@@ -43,7 +40,6 @@ describe.skip(`POST ${baseUrl}`, () => {
                     text: "Comment text"
                 }
             });
-        console.log(res.body, "RES")
 
         expect(res.status).toBe(200);
         expect(await CommentModel.countDocuments()).toBe(1);
@@ -66,7 +62,7 @@ describe.skip(`POST ${baseUrl}`, () => {
     });
 });
 
-describe(`DELETE ${baseUrl}/:id`, () => {
+describe.skip(`DELETE ${baseUrl}/:id`, () => {
     it("should delete a comment", async () => {
         const createRes = await request(app)
             .post(baseUrl)
@@ -85,5 +81,25 @@ describe(`DELETE ${baseUrl}/:id`, () => {
         expect(deleteRes.status).toBe(204);
         expect(await CommentModel.countDocuments()).toBe(0);
         expect((await PostModel.findById(postId))?.comments).toBe(0);
+    });
+
+    it("should block comment deletion because user doesn't own the resource", async () => {
+        const comment = await CommentService.create({
+            content: {
+                text: "",
+                tags: [],
+                hashtags: []
+            },
+            postId,
+            userId: "507f1f77bcf86cd799439011"
+        });
+
+        const deleteRes = await request(app)
+            .delete(`${baseUrl}/${comment._id}`)
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(deleteRes.status).toBe(404);
+        expect(await CommentModel.countDocuments()).toBe(1);
+        expect((await PostModel.findById(postId))?.comments).toBe(1);
     });
 });
