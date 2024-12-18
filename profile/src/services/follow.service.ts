@@ -21,12 +21,10 @@ export namespace FollowService {
         }
     }
 
-    const follow = async (ids: FollowIds): Promise<void> => {
-        await transactionHandler(async session => {
-            await updateFollowCounters(ids, session, 1);
-            await FollowRepository.create(ids, session);
-        });
-    }
+    const follow = transactionHandler(async (session, ids: FollowIds) => {
+        await updateFollowCounters(ids, session, 1);
+        await FollowRepository.create(ids, session);
+    });
 
     export const addFollowOrRequest = async (ids: FollowIds): Promise<{ isAccepted: boolean }> => {
         const { userId, followingUserId } = ids;
@@ -54,17 +52,15 @@ export namespace FollowService {
         await updateFollowCounters(ids, session, -1);
     }
 
-    export const acceptFollow = async (ids: FollowIds): Promise<void> => {
-        await transactionHandler(async session => {
-            const res = await FollowRepository.acceptFollow(ids, session);
+    export const acceptFollow = transactionHandler(async (session, ids: FollowIds) => {
+        const res = await FollowRepository.acceptFollow(ids, session);
 
-            if (!res) {
-                throw new createHttpError.NotFound("Follow request not found.");
-            }
+        if (!res) {
+            throw new createHttpError.NotFound("Follow request not found.");
+        }
 
-            await updateFollowCounters(ids, session, 1);
-        });
-    }
+        await updateFollowCounters(ids, session, 1);
+    });
 
     export const removeMutualFollow = async (ids: FollowIds, session: ClientSession) => {
         const deletedCount: number = await FollowRepository.removeMutualFollow(ids, session);
@@ -80,7 +76,5 @@ export namespace FollowService {
         }
     }
 
-    export const transUnfollow = async (ids: FollowIds) => {
-        await transactionHandler(async session => unfollow(ids, session));
-    }
+    export const transUnfollow = transactionHandler(async (session, ids: FollowIds) => unfollow(ids, session));
 }
