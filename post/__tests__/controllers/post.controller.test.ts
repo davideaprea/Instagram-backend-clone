@@ -6,6 +6,7 @@ import { faker } from "@faker-js/faker";
 import { PostModel } from "../../src/models/post.model";
 import { Types } from "mongoose";
 import { Routes } from "../../src/types/routes.enum";
+import { PostLikeModel } from "../../src/models/like.model";
 
 jest.mock("../../src/producers/post.producer");
 jest.mock('@ig-clone/common', () => {
@@ -87,5 +88,38 @@ describe(`DELETE ${Routes.BASE}/:id`, () => {
 
         expect(res.status).toBe(404);
         expect(await PostModel.findById(post.id)).toBeDefined();
+    });
+});
+
+describe(`POST ${Routes.BASE}/:id/${Routes.LIKES}`, () => {
+    let postId: string;
+
+    beforeEach(async () => {
+        const post = await PostModel.create({
+            userId,
+            medias: ["http//image.url.com"]
+        });
+
+        postId = post.id;
+    });
+
+    it("should like a post", async () => {
+        const res = await request(app)
+            .post(`${Routes.BASE}/${postId}/${Routes.LIKES}`)
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(res.status).toBe(200);
+        expect(await PostLikeModel.findOne({ _id: postId, userId })).toBeDefined();
+        expect((await PostModel.findById(postId))?.likes).toBe(1);
+    });
+
+    it("shouldn't find the post to be liked", async () => {
+        const res = await request(app)
+            .post(`${Routes.BASE}/507f1f77bcf86cd799439011/${Routes.LIKES}`)
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(res.status).toBe(404);
+        expect((await PostModel.findById(postId))?.likes).toBe(0);
+        expect(await PostLikeModel.countDocuments()).toBe(0);
     });
 });
