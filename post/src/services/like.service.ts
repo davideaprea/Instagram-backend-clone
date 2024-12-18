@@ -23,19 +23,23 @@ export namespace LikeService {
     });
 
     export const remove = transactionHandler(async <T extends Likeable>(session: ClientSession, LikedResourceModel: Model<T>, LikeModel: Model<Like>, resourceId: string, userId: string) => {
-        const res = await LikedResourceModel.updateOne(
+        const editRes = await LikedResourceModel.updateOne(
             { _id: resourceId },
             { $inc: { likes: -1 } },
             { session }
         );
 
-        if (res.modifiedCount == 0) {
+        if (editRes.modifiedCount == 0) {
             throw new createHttpError.NotFound("Liked resource not found.");
         }
 
-        await LikeModel.deleteOne(
+        const delRes = await LikeModel.deleteOne(
             { resourceId, userId },
             { session }
         );
+
+        if(delRes.deletedCount == 0) {
+            throw new createHttpError.NotFound("Like not found.");
+        }
     });
 }

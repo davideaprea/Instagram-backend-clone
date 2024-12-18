@@ -7,6 +7,7 @@ import { PostModel } from "../../src/models/post.model";
 import { Types } from "mongoose";
 import { Routes } from "../../src/types/routes.enum";
 import { PostLikeModel } from "../../src/models/like.model";
+import { LikeService } from "../../src/services/like.service";
 
 jest.mock("../../src/producers/post.producer");
 jest.mock('@ig-clone/common', () => {
@@ -121,5 +122,54 @@ describe(`POST ${Routes.BASE}/:id/${Routes.LIKES}`, () => {
         expect(res.status).toBe(404);
         expect((await PostModel.findById(postId))?.likes).toBe(0);
         expect(await PostLikeModel.countDocuments()).toBe(0);
+    });
+
+    it("should block the user from liking the same post more than once", async () => {
+        await request(app)
+            .post(`${Routes.BASE}/${postId}/${Routes.LIKES}`)
+            .set("Authorization", `Bearer ${token}`);
+
+        const res = await request(app)
+            .post(`${Routes.BASE}/${postId}/${Routes.LIKES}`)
+            .set("Authorization", `Bearer ${token}`);
+        
+        expect(res.status).toBe(400);
+    });
+});
+
+describe(`DELETE ${Routes.BASE}/:id/${Routes.LIKES}`, () => {
+    let postId: string;
+
+    beforeEach(async () => {
+        const post = await PostModel.create({
+            userId,
+            medias: ["http//image.url.com"]
+        });
+
+        postId = post.id;
+    });
+
+    it("should delete the like", async () => {
+        await LikeService.create(PostModel, PostLikeModel, postId, userId);
+
+        const res = await request(app)
+            .delete(`${Routes.BASE}/${postId}/${Routes.LIKES}`)
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(res.status).toBe(204);
+        expect((await PostModel.findById(postId))?.likes).toBe(0);
+        expect(await PostLikeModel.countDocuments()).toBe(0);
+    });
+
+    it("shouldn't find a like to delete", async () => {
+        await LikeService.create(PostModel, PostLikeModel, postId, "507f1f77bcf86cd799439011");
+
+        const res = await request(app)
+            .delete(`${Routes.BASE}/${postId}/${Routes.LIKES}`)
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(res.status).toBe(404);
+        expect((await PostModel.findById(postId))?.likes).toBe(1);
+        expect(await PostLikeModel.countDocuments()).toBe(1);
     });
 });
