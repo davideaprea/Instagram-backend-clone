@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { ReplyController } from "../controllers/reply.controller";
 import { LikeController } from "../controllers/like.controller";
-import { CommentModel } from "../models/comment.model";
-import { CommentLikeModel } from "../models/like.model";
+import { ReplyLikeModel } from "../models/like.model";
 import { Routes } from "../types/routes.enum";
+import { ReplyModel } from "../models/reply.model";
 
 export const replyRouter: Router = Router();
 
@@ -17,5 +17,5 @@ replyRouter
 
 replyRouter
     .route(`/:id/${Routes.LIKES}`)
-    .post(LikeController.create(CommentModel, CommentLikeModel))
-    .delete(LikeController.remove(CommentModel, CommentLikeModel));
+    .post(LikeController.create(ReplyModel, ReplyLikeModel))
+    .delete(LikeController.remove(ReplyModel, ReplyLikeModel));
