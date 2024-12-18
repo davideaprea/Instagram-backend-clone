@@ -132,8 +132,8 @@ describe(`POST ${Routes.BASE}/:id/${Routes.LIKES}`, () => {
         const res = await request(app)
             .post(`${Routes.BASE}/${postId}/${Routes.LIKES}`)
             .set("Authorization", `Bearer ${token}`);
-            
-        expect(res.status).toBe(400);
+
+        expect(res.status).toBe(409);
     });
 });
 

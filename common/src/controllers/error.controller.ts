@@ -15,13 +15,16 @@ export const handleError = (err: unknown, req: Request, res: Response, next: Nex
         status = 400;
         messages = Object.values(err.errors).map(err => err.message);
     }
-    else if (err instanceof MongoServerError) {
+    else if (err instanceof MongoServerError || err?.constructor?.name == "MongoServerError") {
+        const mongoErr: MongoServerError = err as MongoServerError;
         status = 400;
 
-        switch (err.code) {
+        switch (mongoErr.code) {
             case 11000:
-                for (const key in err.keyValue) {
-                    messages.push(err.keyValue[key] + " is already taken.");
+                status = 409;
+
+                for (const key in mongoErr.keyValue) {
+                    messages.push(mongoErr.keyValue[key] + " is already taken.");
                 }
 
                 break;
