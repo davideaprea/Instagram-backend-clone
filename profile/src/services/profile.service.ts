@@ -78,62 +78,60 @@ export namespace ProfileService {
         }
     }
 
-    export const deleteAccount = async (id: string): Promise<void> => {
-        await transactionHandler(async session => {
-            const follows = await FollowModel.find(
-                {
-                    $or: [
-                        { userId: id },
-                        { followingUserId: id }
-                    ]
-                },
-                undefined,
-                { session }
-            );
-
-            const profilesFollowingUser: string[] = follows
-                .filter(doc => doc.followingUserId.toString() == id)
-                .map(doc => doc.followingUserId.toString());
-
-            const profilesFollowedByUser: string[] = follows
-                .filter(doc => doc.userId.toString() == id)
-                .map(doc => doc.userId.toString());
-
-            await ProfileModel.bulkWrite([
-                {
-                    deleteOne: {
-                        filter: {
-                            _id: id
-                        }
-                    }
-                },
-                {
-                    updateMany: {
-                        filter: { _id: { $in: profilesFollowingUser } },
-                        update: { following: { $inc: -1 } }
-                    }
-                },
-                {
-                    updateMany: {
-                        filter: { _id: { $in: profilesFollowedByUser } },
-                        update: { followers: { $inc: -1 } }
-                    }
-                }
-            ], { session });
-
-            await BlockModel.deleteMany({
-                $or: [
-                    { userId: id },
-                    { blockedUserId: id }
-                ]
-            }, { session });
-
-            await FollowModel.deleteMany({
+    export const deleteAccount = transactionHandler(async (session, id: string) => {
+        const follows = await FollowModel.find(
+            {
                 $or: [
                     { userId: id },
                     { followingUserId: id }
                 ]
-            }, { session });
-        });
-    }
+            },
+            undefined,
+            { session }
+        );
+
+        const profilesFollowingUser: string[] = follows
+            .filter(doc => doc.followingUserId.toString() == id)
+            .map(doc => doc.followingUserId.toString());
+
+        const profilesFollowedByUser: string[] = follows
+            .filter(doc => doc.userId.toString() == id)
+            .map(doc => doc.userId.toString());
+
+        await ProfileModel.bulkWrite([
+            {
+                deleteOne: {
+                    filter: {
+                        _id: id
+                    }
+                }
+            },
+            {
+                updateMany: {
+                    filter: { _id: { $in: profilesFollowingUser } },
+                    update: { following: { $inc: -1 } }
+                }
+            },
+            {
+                updateMany: {
+                    filter: { _id: { $in: profilesFollowedByUser } },
+                    update: { followers: { $inc: -1 } }
+                }
+            }
+        ], { session });
+
+        await BlockModel.deleteMany({
+            $or: [
+                { userId: id },
+                { blockedUserId: id }
+            ]
+        }, { session });
+
+        await FollowModel.deleteMany({
+            $or: [
+                { userId: id },
+                { followingUserId: id }
+            ]
+        }, { session });
+    });
 }
