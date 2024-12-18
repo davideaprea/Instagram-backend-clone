@@ -5,41 +5,37 @@ import { Like } from "../types/like.type";
 import createHttpError from "http-errors";
 
 export namespace LikeService {
-    export const create = async (LikedResourceModel: Model<Likeable>, LikeModel: Model<Like>, resourceId: string, userId: string) => {
-        return await transactionHandler(async session => {
-            const res = await LikedResourceModel.updateOne(
-                { _id: resourceId },
-                { $inc: { likes: 1 } },
-                { session }
-            );
+    export const create = transactionHandler(async (session, LikedResourceModel: Model<Likeable>, LikeModel: Model<Like>, resourceId: string, userId: string) => {
+        const res = await LikedResourceModel.updateOne(
+            { _id: resourceId },
+            { $inc: { likes: 1 } },
+            { session }
+        );
 
-            if (res.modifiedCount == 0) {
-                throw new createHttpError.NotFound("Liked resource not found.");
-            }
+        if (res.modifiedCount == 0) {
+            throw new createHttpError.NotFound("Liked resource not found.");
+        }
 
-            return await LikeModel.create(
-                [{ resourceId, userId }],
-                { session }
-            );
-        });
-    }
+        return await LikeModel.create(
+            [{ resourceId, userId }],
+            { session }
+        );
+    });
 
-    export const remove = async (LikedResourceModel: Model<Likeable>, LikeModel: Model<Like>, resourceId: string, userId: string) => {
-        await transactionHandler(async session => {
-            const res = await LikedResourceModel.updateOne(
-                { _id: resourceId },
-                { $inc: { likes: -1 } },
-                { session }
-            );
+    export const remove = transactionHandler(async (session, LikedResourceModel: Model<Likeable>, LikeModel: Model<Like>, resourceId: string, userId: string) => {
+        const res = await LikedResourceModel.updateOne(
+            { _id: resourceId },
+            { $inc: { likes: -1 } },
+            { session }
+        );
 
-            if (res.modifiedCount == 0) {
-                throw new createHttpError.NotFound("Liked resource not found.");
-            }
+        if (res.modifiedCount == 0) {
+            throw new createHttpError.NotFound("Liked resource not found.");
+        }
 
-            await LikeModel.deleteOne(
-                { resourceId, userId },
-                { session }
-            );
-        });
-    }
+        await LikeModel.deleteOne(
+            { resourceId, userId },
+            { session }
+        );
+    });
 }
