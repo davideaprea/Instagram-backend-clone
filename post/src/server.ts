@@ -1,7 +1,9 @@
 import { app } from ".";
 import { initMongoConnection } from "./configs/init-mongo-connection.config";
 import { initKafkaTopics } from "./configs/kafka-topics.config";
-import { authConsumer } from "./consumers/auth.consumer";
+import { initAuthConsumer } from "./consumers/auth.consumer";
+import { initProfileConsumer } from "./consumers/profile.consumer";
+import { postProducer } from "./producers/post.producer";
 
 const init = async (): Promise<void> => {
     await initMongoConnection();
@@ -9,8 +11,10 @@ const init = async (): Promise<void> => {
     try {
         await initKafkaTopics();
         
-        await authConsumer.connect();
-        await authConsumer.run();
+        await initAuthConsumer();
+        await initProfileConsumer();
+
+        await postProducer.connect();
 
         console.log("Successully connected to the kafka broker.");
     } catch (e) {

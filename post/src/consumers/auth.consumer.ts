@@ -1,5 +1,5 @@
 import { Consumer } from "kafkajs";
-import { AuthEvents, AuthTopics, KafkaBatchConsumer } from "@ig-clone/common";
+import { AuthEvents, AuthTopics, batchConsumer } from "@ig-clone/common";
 import { kafkaClient } from "../configs/kafka-client.config";
 
 const consumer: Consumer = kafkaClient.consumer({
@@ -7,12 +7,16 @@ const consumer: Consumer = kafkaClient.consumer({
     sessionTimeout: 30000
 });
 
-export const authConsumer = new KafkaBatchConsumer<AuthEvents>(
-    consumer,
-    {
-        [AuthTopics.USER_CREATE]: async users => {
-        },
-        [AuthTopics.USER_DELETE]: async ids => {
+export const initAuthConsumer = async (): Promise<void> => {
+    await consumer.connect();
+    
+    await batchConsumer<AuthEvents>(
+        consumer,
+        {
+            [AuthTopics.USER_CREATE]: async users => {
+            },
+            [AuthTopics.USER_DELETE]: async ids => {
+            }
         }
-    }
-);
+    );
+}

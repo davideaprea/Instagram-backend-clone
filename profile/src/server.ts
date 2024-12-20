@@ -2,7 +2,7 @@ import { app } from ".";
 import { profileProducer } from "./producers/profile.producer";
 import { initMongoConnection } from "./configs/init-mongo-connection.config";
 import { initKafkaTopics } from "./configs/kafka-topics.config";
-import { authConsumer } from "./consumers/auth.consumer";
+import { initAuthConsumer } from "./consumers/auth.consumer";
 
 const init = async (): Promise<void> => {
     await initMongoConnection();
@@ -10,8 +10,7 @@ const init = async (): Promise<void> => {
     try {
         await initKafkaTopics();
         
-        await authConsumer.connect();
-        await authConsumer.run();
+        await initAuthConsumer();
 
         await profileProducer.connect();
 

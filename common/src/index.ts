@@ -22,9 +22,10 @@ export * from "./types/kafka/messages/edit-profile-msg.type";
 
 export * from "./utils/transaction-handler";
 export * from "./utils/get-page";
-export * from "./utils/kafka-consumer.class";
-export * from "./utils/kafka-batch-consumer.class";
-export * from "./utils/kafka-message-consumer.class";
+export * from "./utils/get-page";
+export * from "./utils/get-page";
+export * from "./utils/batch-consumer";
+export * from "./utils/message-consumer";
 export * from "./utils/kafka-producer.class";
 
 export * from "./models/block.model";

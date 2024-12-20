@@ -1,5 +1,5 @@
 import { Consumer } from "kafkajs";
-import { AuthEvents, AuthTopics, KafkaBatchConsumer } from "@ig-clone/common";
+import { AuthEvents, AuthTopics, batchConsumer } from "@ig-clone/common";
 import { kafkaClient } from "../configs/kafka-client.config";
 import { ProfileDto } from "../types/custom-types/profile-dto.type";
 import { Types } from "mongoose";
@@ -11,24 +11,28 @@ const consumer: Consumer = kafkaClient.consumer({
     sessionTimeout: 30000
 });
 
-export const authConsumer = new KafkaBatchConsumer<AuthEvents>(
-    consumer,
-    {
-        [AuthTopics.USER_CREATE]: async users => {
-            const dtos: ProfileDto[] = users.map(user => {
-                return {
-                    _id: new Types.ObjectId(user.id),
-                    username: user.username,
-                    fullName: user.fullName
-                }
-            });
+export const initAuthConsumer = async (): Promise<void> => {
+    await consumer.connect();
 
-            await ProfileRepository.createProfiles(dtos);
-        },
-        [AuthTopics.USER_DELETE]: async ids => {
-            for(const id of ids) {
-                await ProfileService.deleteAccount(id);
+    await batchConsumer<AuthEvents>(
+        consumer,
+        {
+            [AuthTopics.USER_CREATE]: async users => {
+                const dtos: ProfileDto[] = users.map(user => {
+                    return {
+                        _id: new Types.ObjectId(user.id),
+                        username: user.username,
+                        fullName: user.fullName
+                    }
+                });
+
+                await ProfileRepository.createProfiles(dtos);
+            },
+            [AuthTopics.USER_DELETE]: async ids => {
+                for (const id of ids) {
+                    await ProfileService.deleteAccount(id);
+                }
             }
         }
-    }
-);
+    );
+}

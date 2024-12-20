@@ -44,7 +44,7 @@ describe(`POST ${baseRoute}/register`, () => {
         });
     });
 
-    it("should return 400 with error message for duplicate email", async () => {
+    it("should return 409 with error message for duplicate email", async () => {
         await request(app)
             .post(baseRoute + "/register")
             .send({
@@ -63,7 +63,7 @@ describe(`POST ${baseRoute}/register`, () => {
                 fullName: "Full Name"
             });
 
-        expect(res.status).toBe(400);
+        expect(res.status).toBe(409);
         expect(res.body).toEqual({
             messages: [
                 "email@gmail.com is already taken."
@@ -71,7 +71,7 @@ describe(`POST ${baseRoute}/register`, () => {
         });
     });
 
-    it("should return 400 with error message for duplicate username", async () => {
+    it("should return 409 with error message for duplicate username", async () => {
         await request(app)
             .post(baseRoute + "/register")
             .send({
@@ -90,7 +90,7 @@ describe(`POST ${baseRoute}/register`, () => {
                 fullName: "Full Name"
             });
 
-        expect(res.status).toBe(400);
+        expect(res.status).toBe(409);
         expect(res.body).toEqual({
             messages: [
                 "username is already taken."
