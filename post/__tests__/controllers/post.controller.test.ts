@@ -109,7 +109,7 @@ describe(`POST ${Routes.BASE}/:id/${Routes.LIKES}`, () => {
             .post(`${Routes.BASE}/${postId}/${Routes.LIKES}`)
             .set("Authorization", `Bearer ${token}`);
 
-        expect(res.status).toBe(200);
+        expect(res.status).toBe(201);
         expect(await PostLikeModel.findOne({ _id: postId, userId })).toBeDefined();
         expect((await PostModel.findById(postId))?.likes).toBe(1);
     });

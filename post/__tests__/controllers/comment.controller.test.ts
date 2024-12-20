@@ -41,7 +41,7 @@ describe(`POST ${baseUrl}`, () => {
                 }
             });
 
-        expect(res.status).toBe(200);
+        expect(res.status).toBe(201);
         expect(await CommentModel.countDocuments()).toBe(1);
         expect((await PostModel.findById(postId))?.comments).toBe(1);
     });

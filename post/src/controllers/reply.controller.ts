@@ -11,7 +11,7 @@ export namespace ReplyController {
         const reply = await ReplyService.create(req.body);
 
         res
-            .status(200)
+            .status(201)
             .json(reply);
     }
 

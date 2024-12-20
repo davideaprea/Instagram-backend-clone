@@ -12,7 +12,7 @@ export namespace CommentController {
         const comment = await CommentService.create(req.body);
 
         res
-            .status(200)
+            .status(201)
             .json(comment);
     }
 
