@@ -1,9 +1,13 @@
 import { ClientSession, startSession } from "mongoose";
+import { TransactionOptions } from "mongodb";
 
-export const transactionHandler = <TArgs extends any[], TResult>(cb: (session: ClientSession, ...args: TArgs) => Promise<TResult>) => {
+export const transactionHandler = <TArgs extends any[], TResult>(
+    cb: (session: ClientSession, ...args: TArgs) => Promise<TResult>,
+    transactionOptions?: TransactionOptions
+): (...args: TArgs) => Promise<TResult> => {
     return async (...args: TArgs): Promise<TResult> => {
         const session: ClientSession = await startSession();
-        session.startTransaction();
+        session.startTransaction(transactionOptions);
 
         try {
             const res = await cb(session, ...args);

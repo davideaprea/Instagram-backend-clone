@@ -6,25 +6,28 @@ import createHttpError from "http-errors";
 import { PostModel } from "../models/post.model";
 
 export namespace ReplyService {
-    export const create = transactionHandler(async (session, dto: ReplyDto) => {
-        const comment = await CommentModel.findOneAndUpdate(
-            { _id: dto.commentId },
-            { $inc: { replies: 1 } },
-            { session }
-        );
+    export const create = transactionHandler(
+        async (session, dto: ReplyDto) => {
+            const comment = await CommentModel.findOneAndUpdate(
+                { _id: dto.commentId },
+                { $inc: { replies: 1 } },
+                { session }
+            );
 
-        if (!comment) {
-            throw new createHttpError.NotFound("Comment not found.");
-        }
+            if (!comment) {
+                throw new createHttpError.NotFound("Comment not found.");
+            }
 
-        await PostModel.updateOne(
-            { _id: comment.postId },
-            { $inc: { comments: 1 } },
-            { session }
-        );
+            await PostModel.updateOne(
+                { _id: comment.postId },
+                { $inc: { comments: 1 } },
+                { session }
+            );
 
-        return (await ReplyModel.create([dto], { session }))[0];
-    });
+            return (await ReplyModel.create([dto], { session }))[0];
+        },
+        { writeConcern: { w: 1 } }
+    );
 
     export const remove = transactionHandler(async (session, id: string, userId: string) => {
         const deletedReply = await ReplyModel.findOneAndDelete({ _id: id, userId }, { session });
