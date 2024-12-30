@@ -5,4 +5,5 @@ export type Chat = {
     users: ObjectId[]
     type: ChatType
     name: string
+    picture: string
 }

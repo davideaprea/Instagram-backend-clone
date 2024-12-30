@@ -10,7 +10,10 @@ const schema = new Schema<Chat, Model<Chat>>({
         immutable: true,
         enum: Object.values(ChatType)
     },
-    users: [Types.ObjectId]
+    users: [Types.ObjectId],
+    picture: String
 });
+
+schema.index({ users: 1 });
 
 export const ChatModel = model<Chat, Model<Chat>>(SchemaNames.CHAT, schema);

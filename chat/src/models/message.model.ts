@@ -1,6 +1,5 @@
 import { model, Model, Schema, Types } from "mongoose";
 import { Message } from "../types/message.type";
-import { MessageStatus } from "../types/message-status.enum";
 import { SchemaNames } from "../types/schema-names.enum";
 
 const schema = new Schema<Message, Model<Message>>({
@@ -13,17 +12,22 @@ const schema = new Schema<Message, Model<Message>>({
         type: String,
         required: true
     },
-    status: {
-        type: String,
-        enum: Object.values(MessageStatus),
-        required: true,
-        default: MessageStatus.SENT
+    info: {
+        seen: Number,
+        received: Number,
+        sent: {
+            type: Number,
+            default: Date.now(),
+            immutable: true
+        }
     },
-    time: {
-        type: Number,
-        immutable: true,
-        default: Date.now
+    senderId: {
+        type: Types.ObjectId,
+        required: true,
+        immutable: true
     }
 });
+
+schema.index({ chatId: 1 });
 
 export const MessageModel = model<Message, Model<Message>>(SchemaNames.MESSAGE, schema);

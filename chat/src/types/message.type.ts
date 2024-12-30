@@ -1,9 +1,13 @@
 import { ObjectId } from "mongoose"
-import { MessageStatus } from "./message-status.enum"
 
 export type Message = {
     chatId: ObjectId
+    senderId: ObjectId
     text: string
-    status: MessageStatus
-    time: number
+    answeredToMessageId: ObjectId
+    info: {
+        sent: number
+        received: number
+        seen: number
+    }
 }
