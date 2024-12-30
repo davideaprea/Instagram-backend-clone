@@ -1,0 +1,58 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node-dev ./src/server.ts",
+    "test": "jest --watchAll --no-cache"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "./__tests__/setup.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "./__tests__/setup.ts",
+      "./__tests__/utils"
+    ],
+    "testMatch": [
+      "<rootDir>/__tests__/**/*.test.ts"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.664.0",
+    "@faker-js/faker": "^9.0.3",
+    "@ig-clone/common": "^1.8.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-async-errors": "^3.1.1",
+    "http-errors": "^2.0.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "kafkajs": "^2.2.4",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.8.1",
+    "mongoose": "^8.9.1",
+    "ts-node-dev": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/http-errors": "^2.0.4",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/mongoose": "^5.11.97",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.7.4",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.2",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.3"
+  }
+}
