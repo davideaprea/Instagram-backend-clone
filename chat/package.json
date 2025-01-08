@@ -27,7 +27,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.664.0",
     "@faker-js/faker": "^9.0.3",
-    "@ig-clone/common": "^1.8.2",
+    "@ig-clone/common": "^1.11.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "express-async-errors": "^3.1.1",
@@ -35,9 +35,9 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
+    "mongoose": "^8.9.1",
     "multer": "^1.4.5-lts.1",
     "socket.io": "^4.8.1",
-    "mongoose": "^8.9.1",
     "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {
