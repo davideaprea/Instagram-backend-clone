@@ -6,6 +6,7 @@ import { SchemaNames } from "../types/schema-names.enum";
 const schema = new Schema<Chat, Model<Chat>>({
     name: String,
     type: {
+        type: String,
         required: true,
         immutable: true,
         enum: Object.values(ChatType)
